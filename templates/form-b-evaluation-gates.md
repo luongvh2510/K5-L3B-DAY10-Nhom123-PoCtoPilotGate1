@@ -31,7 +31,7 @@ Mọi con số trong quyết định Gate 1 phải trỏ về một dòng ở đ
 |---|---|---|---|---|---|---|---|---|
 | 1 | R-base-before-20261119-173442-bde05c | base · base | (baseline, chưa có cổng) | 0.9909 [0.9727, 1.0] | 0.9545 | 20000đ · 1 · 0 | 0.2273 | Đạt pass_rate/pass_k và kinh doanh, nhưng CHƯA đạt an toàn do T-002@55 hoàn sai 20000đ và 1 lỗi hãng oan. |
 | 2 | R-base-after-20261119-195824-6eb2db | base · after | (cổng vòng 1, thử trước khi chốt) Thêm 3 cổng trong `guards.py` (config `operations`, `legal`, `business` đã có) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.2273 | Mọi ngưỡng đã ký đều đạt; không có ca mới hỏng; `T-002@55` từ chối 0đ, không ghi lỗi hãng. |
-| 3 | | base · prepared | (cổng vòng 1 đã chốt) | | | | | |
+| 3 | R-base-prepared-20261119-200438-604cca | base · prepared | (cổng vòng 1 đã chốt) Chốt bằng `lab10.checkpoint`, hash `e3255aca`; không đổi gì so với dòng 2 | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.2273 | Gate: cả 9 ngưỡng đã ký đều đạt, không vượt trần; chi phí 4.456đ/ticket, ROI 1.24, 0 ca ùn. |
 | 4 | | | | | | | | |
 
 ---
