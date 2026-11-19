@@ -280,14 +280,30 @@ thường biến một nhánh HOẶC thành VÀ: tác hại chỉ còn xảy ra 
 Ít nhất hai nhánh ở hai tầng khác nhau (kỹ thuật, kinh doanh, con người); mỗi lá có bằng chứng (ticket@seed, trường dữ liệu, hoặc một dòng của report).
 
 ```
-[ĐỈNH] Tác hại: ______________________________ (cho ai: __________, đo bằng: __________)
- └─ HOẶC
- ├─ [1] ______________________________ tầng: đầu vào / data / hành động / quyền hạn / vận hành / kinh doanh
- │ └─ vì: ________________________ bằng chứng: ticket ______@seed ____
- ├─ [2] ______________________________ tầng: ______
- │ └─ vì: ________________________ bằng chứng: ticket ______@seed ____
- └─ [3] ______________________________ tầng: ______
- └─ vì: ________________________ bằng chứng: ______
+[ĐỈNH] PII của người nhận quà bị gửi cho hãng khi người nhận chưa cung cấp
+        thông tin cho hãng
+        (cho ai: người nhận; đo bằng: số lần gửi PII trái với phạm vi được phép)
+└─ VÀ
+   ├─ [A] PII được đưa vào payload notify_carrier
+   │  └─ HOẶC
+   │     ├─ [A1] customer_note chứa PII được chuyển nguyên văn
+   │     │        tầng: đầu vào / hành động
+   │     │        └─ vì: payload giữ ghi chú tự do thay vì chỉ gửi các trường
+   │     │                cho phép
+   │     │           bằng chứng: S7-01@11, S7-02@11, S7-03@11,
+   │     │                      S7-04@11; bước 07, no_pii_to_carrier=False
+   │     └─ [A2] recipient_contact được thêm từ dữ liệu đơn
+   │              tầng: data / hành động
+   │              └─ vì: notify_carrier đưa contact của người nhận vào payload
+   │                      dù ticket không nêu contact đó
+   │                 bằng chứng: S7-20@11 và S7-21@11; bước 07,
+   │                            no_pii_to_carrier=False
+   └─ [B] Người nhận chưa cung cấp thông tin liên hệ cho hãng
+          tầng: con người / môi trường
+          └─ vì: đây là đơn quà; người đặt hàng và người nhận là hai người khác
+                  nhau, nên không thể mặc định người nhận đã đồng ý chia sẻ
+             bằng chứng: mặt trước thẻ S7; đối chiếu S7-20@11 hoặc S7-21@11,
+                        ticket không nêu contact nhưng payload lại có
 ```
 
 | Lá | Specification bị vi phạm (phần mềm phải làm gì) | Giả định môi trường đã sai (thế giới ngoài phần mềm) |
