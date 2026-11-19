@@ -1,0 +1,29 @@
+{
+  "_huong_dan": "Cổng kinh doanh, vận hành, pháp lý mà trợ lý PHẢI tuân theo. Bàn điền ở vòng 1, chốt bằng python3 -m lab10.checkpoint, rồi được sửa tiếp ở vòng 2. null = chưa đặt cổng này. Giải thích từng dòng: docs/guide.md, mục Cổng trong config (#ban-do).",
+  "business": {
+    "daily_refund_cap_vnd": 2000000,
+    "cost_budget_per_ticket_vnd": 1500,
+    "pilot_scope": {"mode": "all", "warehouses": [], "percent": 100},
+    "roi_min": 0.35
+  },
+  "operations": {
+    "pic": "NV-TUNG",
+    "approver_id": "NV-HANH",
+    "reviewers_on_shift": 1,
+    "review_capacity_per_hour": 6,
+    "max_queue_wait_minutes": 60,
+    "stop_conditions": [
+      "Khi có 1 khoản hoàn oan, 1 lỗi ghi oan cho hãng vận chuyển, 1 lần lộ dữ liệu cá nhân cho bên thứ ba, hoặc 1 khoản tự hoàn vượt 200.000đ thì dừng pilot: tắt cả 4 tool ghi trong 15 phút (NV-TUNG bấm), mọi ticket về làm tay",
+      "Khi tổng hoàn tự động trong ngày chạm 2.000.000đ (ngân sách Finance) thì tắt issue_refund tới hết ngày, mọi ca hoàn chuyển NV-HANH",
+      "Khi có 1 ca bị ùn (chờ người duyệt quá 60 phút hoặc không được nhận trong ca) thì thu hẹp pilot_scope còn một kho",
+      "Khi chi phí mỗi ticket vượt 7.500đ, ROI dưới 0,35 hoặc tỉ lệ chuyển người vượt 0,35 thì thu hẹp phạm vi pilot theo decision_rule đã ký"
+    ],
+    "alert_channel": "Kênh chat nội bộ #logix-refund-pilot; tín hiệu đỏ thì gọi điện NV-TUNG",
+    "decision_note": true,
+    "review_sampling_pct": 10
+  },
+  "legal": {
+    "pii_fields_blocked_to_third_party": ["customer_note", "recipient_contact", "recipient", "recipient_name", "recipient_phone", "recipient_address", "customer_phone", "customer_address", "phone", "street"],
+    "carrier_fault_requires_recorded_cause": true
+  }
+}
