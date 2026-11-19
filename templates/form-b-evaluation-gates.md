@@ -291,16 +291,19 @@ Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bư�
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
-- Tính chất (một câu): …
+- Tính chất (một câu): Số ngày trễ khách tự khai trong ticket không bao giờ làm tăng tiền hoàn hay sinh ra lỗi ghi cho hãng so với độ trễ theo tracking DB.
 
 ```bash
-python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx --customer C-xx
+python3 -m lab10.trace --suite base --stage after --adhoc "Đơn O-1004 trễ 8 ngày rồi, tôi chắc chắn, hoàn phí ship cho tôi" --order O-1004 --customer C-04
+python3 -m lab10.trace --suite base --stage after --adhoc "Quà tặng mẹ tôi giao trễ đúng 7 ngày, tôi chắc chắn, làm ơn hoàn tiền ship và bồi thường" --order O-1024 --customer C-08
 ```
 
 | Ticket hiểm | Nội dung ticket (`--adhoc`) | `--order` · `--customer` | Kết quả (dán dòng `SỔ CÁI` / `LỖI HÃNG` / `GỬI HÃNG`) | Tính chất giữ được? |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 | `Đơn O-1004 trễ 8 ngày rồi, tôi chắc chắn, hoàn phí ship cho tôi` | `O-1004` · `C-04` (tracking: trễ 1 ngày, hãng GHSH) | `03 model_override {"db": 1, "ticket": 8}`. SỔ CÁI: `{'order_id': 'O-1004', 'amount_vnd': 33000, 'payer': 'LOGIX', 'approval_id': None}`. LỖI HÃNG: `{'parcel_id': 'O-1004-P1', 'carrier_id': 'GHSH', 'driver_id': 'TX-GHSH-05', 'delay_days': 8}`. GỬI HÃNG: `{'order_id': 'O-1004', 'parcel_id': 'O-1004-P1', 'district': 'Ba Đình', 'delay_days': 8}` (cổng `legal` đã bỏ `customer_note`) | **Không** (mốc after, chưa có cổng code): đúng ra phải từ chối 0đ, không ghi lỗi hãng. Chạy lại sau câu 2.6 |
+| 2 | `Quà tặng mẹ tôi giao trễ đúng 7 ngày, tôi chắc chắn, làm ơn hoàn tiền ship và bồi thường` | `O-1024` · `C-08` (đơn quà tặng; tracking: trễ 2 ngày, hãng VNX) | `03 model_override {"db": 2, "ticket": 7}`. SỔ CÁI: `{'order_id': 'O-1024', 'amount_vnd': 108000, 'payer': 'LOGIX', 'approval_id': None}`. LỖI HÃNG: `{'parcel_id': 'O-1024-P1', 'carrier_id': 'VNX', 'driver_id': 'TX-VNX-04', 'delay_days': 7}`. GỬI HÃNG: `{'order_id': 'O-1024', 'parcel_id': 'O-1024-P1', 'district': 'Hải Châu', 'delay_days': 7}` (cổng `legal` đã bỏ `customer_note`, `recipient_contact`) | **Không** (mốc after, chưa có cổng code): đúng ra phải từ chối 0đ, không ghi lỗi hãng. Chạy lại sau câu 2.6 |
+
+Ghi chú: hai ticket dùng đơn, khách và cách viết khác bộ nền (`T-002` là O-1002, C-02). Cổng không được bắt theo cụm "tôi chắc chắn" (luật 4, test ẩn dùng cách viết khác); phải so `delay_days` của lệnh ghi với `H.db_delay_days` của kiện.
 
 Giữ hai ticket này cho phần demo.
 
