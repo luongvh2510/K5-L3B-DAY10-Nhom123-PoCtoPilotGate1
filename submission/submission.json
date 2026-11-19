@@ -3,10 +3,10 @@
   "members": ["VoHongLuong-2A202603839", "HoAnhTu-2A202603811", "LeDucTrucLam-2A202603787", "TrieuHaiDangTrinh-2A202603874"],
   "incident": "S7",
   "decision_v1": "Tiếp tục",
-  "decision_v2": "",
+  "decision_v2": "Tiếp tục",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+    "environment_assumption": "Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: Người gửi ticket chỉ mô tả sự cố của chính mình và không đưa dữ liệu cá nhân của người khác; nhưng đơn quà có người đặt và người nhận khác nhau, người nhận không ký gì với LogiX và khách có thể gõ tên, số điện thoại hoặc địa chỉ của người nhận.",
+    "reduce_or_prevent": "Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: Cổng allowlist trong `write_gate` thực sự NGĂN class lỗi field ngoài `policies[].carrier_notice_fields` bằng cách loại mọi khoá thừa trước `notify_carrier`; nó không tự giải quyết mọi vấn đề privacy, consent hoặc dữ liệu sai ngay trong các field được phép.",
+    "measure_in_pilot": "Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: Ghi và theo dõi trên traffic thật `unauthorized_carrier_field_rate`, `sensitive_carrier_field_rate` và `pii_leaks` theo từng payload `notify_carrier`, đồng thời đối chiếu phản ánh/consent của recipient và business/ops metrics trước Gate 2."
   }
 }

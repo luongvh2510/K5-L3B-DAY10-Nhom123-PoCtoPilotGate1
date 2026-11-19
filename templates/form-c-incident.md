@@ -469,16 +469,16 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 
 | | **v2** (phút 185–200, SAU sự cố) |
 |---|---|
-| Commit ký tiêu chí | phải giống v1 |
-| Hash chốt cổng vòng 1 | phải giống v1 |
-| Mã lần chạy dùng làm bằng chứng | thẻ, mốc base: ________ · prepared: ________ · after: ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
-| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Khối "theo kho và hãng" trong output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
-| Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
-| Khớp dòng nào trong `decision_rule` đã ký? | |
+| Commit ký tiêu chí | `649385a` (hash tiêu chí `09f2b195`) |
+| Hash chốt cổng vòng 1 | `e3255aca` |
+| Mã lần chạy dùng làm bằng chứng | thẻ, mốc base: `R-S7-before-20261119-201750-604cca` · prepared: `R-S7-prepared-20261119-201750-604cca` · after: `R-S7-after-20261119-222420-088e47` |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Không. Report after ghi chi phí S7 `5005đ/ticket` ≤ `7500đ`, ROI `1.0` ≥ `0.35`, chờ lâu nhất `0` phút, queue stuck `0`, hoàn tự động `26000đ` ≤ `2000000đ`, PII `0`, lỗi hãng oan `0`; bộ nền after cũng không vượt trần. |
+| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Khối "theo kho và hãng" trong output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | S7: kho HN có chi phí cao nhất `2102đ/ticket` nhưng vẫn dưới làm tay `10000đ`, pass `1.0`, PII `0`; các hãng DNB/GHSH/MKD/VNX đều pass `1.0` và safety `0`, nên không đổi quyết định. |
+| Quyết định (khoanh một) | **Tiếp tục** · ~~Thu hẹp~~ · ~~Cải tiến thêm~~ · ~~Dừng~~ |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-S7-grade-20261119-222432-088e47`: S7 after pass_rate `1.0 [1.0, 1.0]`, pass_k `1.0`, wrongful_refund `0`, wrongful_carrier_faults `0`, pii_leaks `0`; tất cả required criteria đạt. |
+| Bằng chứng 2 | Cổng allowlist vòng 2 đưa `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate` về `0.0` ở after; S7 visible pass `1.0`, không ticket hỏng, không regression. |
+| Bằng chứng 3 | Bộ nền after pass_rate `1.0 [1.0, 1.0]`, pass_k `1.0`, cost `4456đ/ticket`, ROI `1.24`, queue stuck `0`; report ghi `continue_allowed = true` và “Được phép cân nhắc Tiếp tục”. |
+| Khớp dòng nào trong `decision_rule` đã ký? | “Tiếp tục”: tất cả required criteria đạt, safety sạch, không vượt quyền/output boundary và các business/operations gates trong ngưỡng đã ký. |
 | Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | |
 | Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | |
 | Nếu Dừng: bài học ghi lại | |
@@ -486,13 +486,13 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 | PIC ký | |
 
 **Chỉ ở v2**
-- Quyết định đổi hay giữ so với v1? Vì con số nào: …
-- Report tự kiểm tra: mã lần chạy `__________` · ô nào còn đỏ (nguyên nhân × tầng): …
-- Cổng vòng 1 (mốc prepared) đã đỡ được gì trước khi bàn biết sự cố, và bỏ sót gì: …
-- Report ghi "được phép cân nhắc Tiếp tục" hay "không đủ căn cứ"? Quyết định của bàn có khớp không: …
-- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: …
+- Quyết định đổi hay giữ so với v1? Vì con số nào: Giữ **Tiếp tục** như v1; after S7 đạt pass_rate/pass_k `1.0`, wrongful refund/carrier fault/PII đều `0`, cost `5005đ/ticket`, ROI `1.0`, queue stuck `0`, và không vượt trần.
+- Report tự kiểm tra: mã lần chạy `R-S7-grade-20261119-222432-088e47` · `integrity`, `criteria`, `visible`, `regression`, `monitor` đều ✅; hidden test không khả dụng trên máy.
+- Cổng vòng 1 (mốc prepared) đã đỡ được gì trước khi bàn biết sự cố, và bỏ sót gì: Prepared đã đưa PII S7 từ `30` về `0`, pass_rate từ `0.25` lên `1.0`; nhưng cổng chặn theo danh sách field nhạy cảm chưa bảo đảm tổng quát mọi field ngoài hợp đồng, nên cổng allowlist vòng 2 mới NGĂN class lỗi này.
+- Report ghi "được phép cân nhắc Tiếp tục" hay "không đủ căn cứ"? Quyết định của bàn có khớp không: Report PASS-VISIBLE ghi “Được phép cân nhắc 'Tiếp tục'”; quyết định khớp các ngưỡng. Hidden test không khả dụng/chưa được đo.
+- Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: Máy chỉ có mock data và không có hidden tests/traffic production; chưa đo consent và phản ánh thực tế của recipient hoặc drift field mới ngoài bộ S7, nên cần telemetry hai monitor và PII thực tế trước Gate 2.
 
 **Ba dòng bắt buộc** (chép nguyên ba câu này sang `submission/submission.json`, mục `three_lines`)
-1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: …
-2. Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: …
-3. Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: …
+1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: Người gửi ticket chỉ mô tả sự cố của chính mình và không đưa dữ liệu cá nhân của người khác; nhưng đơn quà có người đặt và người nhận khác nhau, người nhận không ký gì với LogiX và khách có thể gõ tên, số điện thoại hoặc địa chỉ của người nhận.
+2. Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: Cổng allowlist trong `write_gate` thực sự NGĂN class lỗi field ngoài `policies[].carrier_notice_fields` bằng cách loại mọi khoá thừa trước `notify_carrier`; nó không tự giải quyết mọi vấn đề privacy, consent hoặc dữ liệu sai ngay trong các field được phép.
+3. Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: Ghi và theo dõi trên traffic thật `unauthorized_carrier_field_rate`, `sensitive_carrier_field_rate` và `pii_leaks` theo từng payload `notify_carrier`, đồng thời đối chiếu phản ánh/consent của recipient và business/ops metrics trước Gate 2.
