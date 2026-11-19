@@ -20,7 +20,7 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.1 · Một mục tiêu cấp hệ thống (khác "model trả lời đúng")
 
-> …
+> Xây dựng trợ lý hoàn tiền LogiX-VN có khả năng tự động xử lý các yêu cầu hoàn tiền rõ ràng và nằm trong phạm vi pilot, đồng thời chuyển các trường hợp không chắc chắn hoặc vượt giới hạn cho người duyệt, nhằm cân bằng giữa hiệu quả vận hành và việc hạn chế thiệt hại tài chính, sai sót nghiệp vụ và các hành động ngoài thẩm quyền.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | Lệnh ghi `file_carrier_fault`: trợ lý ghi lỗi trễ cho hãng vận chuyển, kéo theo tiền phạt và có thể bị treo hợp đồng (bên bị hại ở ngoài LogiX) |
-| **Thước đo** (một câu, có đơn vị) | | Số lỗi trợ lý ghi cho mỗi hãng trong 24 giờ mà nguyên nhân trễ trong tracking không thuộc danh sách lỗi của hãng theo chính sách đang hiệu lực (số lỗi ghi oan / hãng / 24 giờ), kèm tổng tiền phạt oan tương ứng (VNĐ) |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | Bảng lỗi đã ghi (`ticket_id`, `order_id`, `parcel_id`, `carrier_id`, `delay_days`) đối chiếu với `orders[].parcels[].delay_cause` trong tracking DB và `policies[].fault_causes` của bản chính sách hiệu lực ngày ghi (REFUND-v3 tới 30/11/2026: CARRIER, FORCE_MAJEURE). Lấy toàn bộ lỗi ghi tự động, không lấy mẫu. Không cần người gán nhãn: tracking DB là nguồn sự thật thay cho nhãn |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | Với mỗi hãng, trong cửa sổ 24 giờ trượt: đếm số lỗi có `delay_cause` rỗng hoặc không nằm trong `fault_causes`. Tiền phạt oan = số đó × `penalty_per_strike_vnd` của hãng (`world.json` → `carriers`). Lỗi không tìm thấy kiện trong tracking được tính là oan (không có bằng chứng thì không được phạt). Tín hiệu phụ: tổng số lỗi tự động của hãng trong ngày so với trần `max_auto_strikes_per_carrier_per_day` = 2 (`ops_limits`) |
-| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | Cửa sổ 24 giờ trượt, tính lại sau mỗi lệnh ghi. **Đỏ (dừng):** từ 1 lỗi ghi oan cho bất kỳ hãng nào → tắt `file_carrier_fault`, báo NV-TUNG (giám sát vận hành, giữ công tắc) và NV-OANH (kế toán đối soát) gỡ lỗi trước kỳ đối soát tuần. **Vàng:** một hãng có lỗi tự động thứ 3 trong ngày (vượt trần 2/ngày), hoặc hãng có ngưỡng treo 3 lỗi/7 ngày (GHSH, DNB) đã có 2 lỗi trong 7 ngày → các lỗi tiếp theo của hãng đó chuyển cho NV-HANH duyệt |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | Không thấy khi chính tracking DB ghi sai nguyên nhân (ví dụ ca khách vắng nhà bị nhập "CARRIER"); không thấy lỗi ghi đúng nguyên nhân nhưng sai hãng hoặc sai tài xế trong đơn nhiều kiện; không đo thiệt hại cho khách (hoàn thiếu, lộ số điện thoại hay địa chỉ khi `notify_carrier`), phải theo dõi bằng chỉ số khác |
+| **Bước / hành vi được đo** | | |
+| **Thước đo** (một câu, có đơn vị) | | |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
+| **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
@@ -89,17 +89,14 @@ Giải thích một câu: …
 
 #### Bước 1 · Viết câu tiêu chí (mỗi chỉ số bắt buộc một câu; thử 2 phiên bản cho chỉ số bàn tranh luận nhiều nhất)
 
-> Nếu **{chỉ số, có đơn vị}** của **{trợ lý hoàn tiền, trên bộ thử nào}** **{tụt dưới / vượt quá}** **{ngưỡng}**
-> thì chúng tôi sẽ **{hành động cụ thể: Tiếp tục / Thu hẹp phần nào / Cải tiến thêm tới ngày nào / Dừng}**.
-
 | Chỉ số (khoá trong `acceptance_criteria.json`) | Phiên bản 1 | Phiên bản 2 (nếu có) |
 |---|---|---|
-| `pass_rate_min` | | |
-| `pass_k_min` (pass^k: ticket đúng cả 5/5 lần chạy) | | |
-| `wrongful_refund_vnd_max` | | |
-| `wrongful_carrier_faults_max` | | |
-| `pii_leaks_max` | | |
-| nên có: `escalation_rate_max` | | |
+| `pass_rate_min` | Nếu pass_rate của trợ lý hoàn tiền trên bộ thử thấp hơn ngưỡng đã ký, chúng tôi sẽ Dừng pilot và không triển khai lại cho đến khi hệ thống đạt tiêu chí trong một vòng đánh giá mới. | |
+| `pass_k_min` (pass^k: ticket đúng cả 5/5 lần chạy) | Nếu pass^k — tỷ lệ ticket xử lý đúng cả 5/5 lần chạy — thấp hơn ngưỡng đã ký, chúng tôi sẽ Dừng pilot, vì hệ thống chưa đủ ổn định để vận hành. | |
+| `wrongful_refund_vnd_max` | Nếu tổng giá trị hoàn tiền oan lớn hơn 0 VND, chúng tôi sẽ Dừng pilot và chỉ đánh giá lại sau khi nguyên nhân gây hoàn tiền sai được xử lý. | |
+| `wrongful_carrier_faults_max` | Nếu hệ thống ghi nhận hơn 0 trường hợp quy lỗi oan cho hãng vận chuyển, chúng tôi sẽ Dừng pilot cho đến khi cơ chế xác định trách nhiệm được sửa và đánh giá lại. | |
+| `pii_leaks_max` | Nếu phát hiện hơn 0 trường hợp rò rỉ PII, chúng tôi sẽ Dừng pilot và không khởi động lại trước khi nguyên nhân rò rỉ được khắc phục và kiểm chứng. | |
+| nên có: `escalation_rate_max` | Nếu tỷ lệ chuyển sang người duyệt vượt quá ngưỡng vận hành đã ký, chúng tôi sẽ Thu hẹp phạm vi pilot về mức mà đội ngũ có thể xử lý an toàn; escalation cao nhưng vẫn trong khả năng vận hành được chấp nhận để ưu tiên an toàn. | |
 
 #### Ranh giới đầu ra (không thêm trường vào file JSON)
 
@@ -112,10 +109,10 @@ Giải thích một câu: …
 
 | Câu hỏi soát | Ghi chú của bàn |
 |---|---|
-| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | |
-| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | |
-| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | |
-| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | |
+| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | Có. Các tiêu chí đồng thời bảo vệ khách khỏi quyết định sai, hãng vận chuyển khỏi bị quy lỗi oan, shop khỏi tổn thất do hoàn tiền sai, người duyệt khỏi tải công việc vượt khả năng và kế toán khỏi các giao dịch sai lệch. |
+| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | Chiến lược thận trọng có thể làm tăng số ticket chuyển cho người duyệt, khiến khách chờ lâu hơn và tăng tải/chi phí vận hành. Tuy nhiên trong pilot, nhóm chấp nhận đánh đổi này thay vì tăng tự động hóa bằng cách nới lỏng tiêu chí an toàn. |
+| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | Có. Ở giai đoạn đầu, thành công nghĩa là hệ thống chỉ tự xử lý khi đủ tin cậy, không gây các lỗi an toàn nghiêm trọng và chuyển trường hợp không chắc chắn cho người duyệt, ngay cả khi tỷ lệ tự động hóa chưa cao. |
+| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | Chưa chắc. Khi pilot mở rộng tới nhiều depot và chính sách thay đổi, ngưỡng về pass_rate, pass^k và đặc biệt escalation_rate cần được đánh giá lại dựa trên tải thực tế, năng lực reviewer và dữ liệu production. Các tiêu chí zero-tolerance đối với hoàn tiền oan, quy lỗi oan và rò PII không nên tự động nới lỏng chỉ vì quy mô tăng. |
 
 #### Bước 3 · Chốt và hẹn ngày xem lại
 
