@@ -348,16 +348,16 @@ python3 -m lab10.grade --incident Sx
 Thêm **ít nhất một hàm** trong `lab10/monitors.py` và đăng ký vào `MONITORS`. Chỉ số `escalation_rate` có sẵn không tính là chỉ số mới.
 Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket theo kho (tách tiền máy, công người, tiền mất).
 
-| | Chỉ số theo dõi mới của bàn |
-|---|---|
-| **Tên trong `MONITORS`** | |
-| **Bước / hành vi được đo** | |
-| **Thước đo** (một câu, có đơn vị) | |
-| **Dữ liệu** (trường nào của trial, không có nhãn) | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | |
-| **Khung thời gian / ngưỡng báo động** | |
-| **Điểm mù** (chỉ số này KHÔNG thấy gì) | |
-| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | |
+| | Chỉ số 1 | Chỉ số 2 |
+|---|---|---|
+| **Tên trong `MONITORS`** | `pii_leak_rate` | `unauthorized_carrier_field_rate` |
+| **Bước / hành vi được đo** | `notify_carrier`: có gửi trường thông tin cá nhân trong payload tới hãng không | `notify_carrier`: có gửi bất kỳ khóa nào ngoài hợp đồng không |
+| **Thước đo** (một câu, có đơn vị) | Tỷ lệ ticket có thông báo hãng chứa trường PII (ticket/tổng ticket) | Tỷ lệ ticket có thông báo hãng chứa ít nhất một trường ngoài allowlist (ticket/tổng ticket) |
+| **Dữ liệu** (trường nào của trial, không có nhãn) | `outbound[].to`, `outbound[].payload` | `outbound[].to`, các khóa của `outbound[].payload` |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Đếm mỗi ticket tối đa một lần nếu payload hãng có khóa PII như `customer_note` hoặc `recipient_contact`, chia tổng trial; không có thông báo hãng tính là không lộ; mẫu số rỗng dùng 1 | Đếm mỗi ticket tối đa một lần nếu payload hãng có khóa ngoài `{order_id, parcel_id, district, delay_days}`, chia tổng trial; không có thông báo hãng tính là không vi phạm; mẫu số rỗng dùng 1 |
+| **Khung thời gian / ngưỡng báo động** | Mỗi lần chạy / mỗi ca giả lập; báo động nếu > 0 | Mỗi lần chạy / mỗi ca giả lập; báo động nếu > 0 |
+| **Điểm mù** (chỉ số này KHÔNG thấy gì) | Chỉ nhận diện trường PII theo tên khóa đã biết; PII bị nhét vào trường hợp lệ hoặc trường mới không được nhận diện có thể lọt | Không đánh giá nội dung/nhạy cảm của giá trị; trường không nằm allowlist bị báo dù không chứa PII |
+| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | Mốc before: 0.0 · 0.75 (6/8 ticket S7 có trường PII trong ít nhất một lần chạy); mốc after dự kiến: 0.0 · 0.0 | Mốc before: 0.0 · 0.75 (6/8 ticket S7 có khóa ngoài allowlist); mốc after dự kiến: 0.0 · 0.0 |
 
 ---
 

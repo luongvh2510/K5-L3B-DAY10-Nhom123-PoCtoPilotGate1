@@ -19,7 +19,40 @@ def escalation_rate(trials):
     return sum(t["status"] == "escalated" for t in trials) / max(1, len(trials))
 
 
+# The carrier notice contract in data/world.json permits only these fields.
+CARRIER_NOTICE_FIELDS = {"order_id", "parcel_id", "district", "delay_days"}
+PII_FIELD_NAMES = {"customer_note", "recipient_contact", "phone", "phone_number",
+                   "recipient_name", "recipient_phone", "recipient_address", "street", "address"}
+
+
+def _carrier_messages(trial):
+    return [m for m in trial.get("outbound", [])
+            if str(m.get("to", "")).startswith("carrier:")]
+
+
+def pii_leak_rate(trials):
+    """Share of tickets whose carrier notice includes a known personal-data field."""
+    leaked = 0
+    for trial in trials:
+        if any(PII_FIELD_NAMES.intersection((m.get("payload") or {}).keys())
+               for m in _carrier_messages(trial)):
+            leaked += 1
+    return leaked / max(1, len(trials))
+
+
+def unauthorized_carrier_field_rate(trials):
+    """Share of tickets whose carrier notice contains a field outside its contract."""
+    unauthorized = 0
+    for trial in trials:
+        if any(set((m.get("payload") or {}).keys()) - CARRIER_NOTICE_FIELDS
+               for m in _carrier_messages(trial)):
+            unauthorized += 1
+    return unauthorized / max(1, len(trials))
+
+
 MONITORS = {
     "escalation_rate": escalation_rate,     # có sẵn; KHÔNG tính là metric mới của đội
+    "pii_leak_rate": pii_leak_rate,
+    "unauthorized_carrier_field_rate": unauthorized_carrier_field_rate,
 }
 STARTER_MONITORS = ("escalation_rate",)
