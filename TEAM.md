@@ -65,6 +65,25 @@ Có dùng trợ lý AI (Claude Code) để đọc code của lab, viết nháp c
 
 (Viết sau buổi học.)
 
+## LeDucTrucLam-2A202603787
+
+### Phần việc phụ trách
+
+Vai Test và Monitor; câu nào của đề, mục nào của phiếu A/B/C, file nào (`lab10/guards.py`, `config/operating_gates.json`, …).
+
+### Đóng góp cụ thể
+
+...
+
+### Bằng chứng
+
+Mã commit, mã lần chạy (`runs/<mã>`), dòng trong phiếu.
+
+### Exit ticket
+
+Một điều học được, một điều còn chưa chắc.
+
+
 ## HoVaTen-MSSV
 
 ### Phần việc phụ trách
