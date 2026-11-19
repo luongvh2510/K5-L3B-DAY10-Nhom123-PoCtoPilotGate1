@@ -48,12 +48,12 @@ trợ lý có đang gây thiệt hại cho bên ngoài LogiX không; không có 
 
 | | Offline, cho MỘT bước (câu 1.3) | Telemetry production (câu 1.4) |
 |---|---|---|
-| **Bước / hành vi được đo** | | |
-| **Thước đo** (một câu, có đơn vị) | | |
-| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | | |
+| **Bước / hành vi được đo** | Ghi lỗi hãng (`file_carrier_fault`) — quyết định quy trách nhiệm trễ cho hãng vận chuyển. | |
+| **Thước đo** (một câu, có đơn vị) | Tỉ lệ lần chạy trợ lý gọi `file_carrier_fault` sai căn cứ (sai chính sách tracking DB hoặc sai hãng/kiện hàng) trên tổng số lần chạy có gọi `file_carrier_fault` (đơn vị: %, hoặc tỉ lệ trong [0, 1]). | |
+| **Dữ liệu** (lấy ở đâu, bao nhiêu, ai gán nhãn) | `110` lần chạy (`22 ticket × 5 seed`) bộ nền `base` trong `runs/<mã lần chạy>/traces/`; lấy sự kiện `07 tool` (`tool == "file_carrier_fault"`, `carrier_id`, `parcel_id`, `delay_days`) và đối chiếu với trường `faults` trong nhãn chuẩn bộ nền (đội kiểm thử/vận hành gán nhãn theo chính sách hoàn tiền và tracking DB chuẩn). | |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | `Số lần gọi file_carrier_fault không khớp carrier_id/parcel_id với trường faults của nhãn chuẩn / Tổng số lần chạy có phát sinh sự kiện tool == "file_carrier_fault"`. Lần chạy không gọi `file_carrier_fault` không tính vào mẫu số (đếm riêng); trace thiếu trường dữ liệu bị loại khỏi mẫu số và đếm riêng vào `missing_data`. Hai người tính độc lập ra cùng số. | |
 | **Khung thời gian / ngưỡng báo động** | (không áp dụng) | |
-| **Điểm mù** (thước đo này KHÔNG thấy gì) | | |
+| **Điểm mù** (thước đo này KHÔNG thấy gì) | Không phát hiện lỗi bỏ sót (hãng có lỗi theo tracking nhưng trợ lý không gọi `file_carrier_fault`), và không phát hiện khi tracking DB ghi sai ngày giao hoặc nguyên nhân trễ (`cause`) so với thực tế. | |
 
 **Ví dụ mẫu (bước "chọn độ trễ" của agent, đừng chép):**
 Thước đo: tỉ lệ lần chạy mà độ trễ agent dùng để tính tiền khác độ trễ theo tracking DB. Dữ liệu: sự kiện `proposal.delay_days_used`
