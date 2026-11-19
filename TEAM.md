@@ -11,12 +11,12 @@
 
 Họ tên đầy đủ và MSSV của **mọi** thành viên; bàn 3 người thì để trống dòng 4. Vai: Kỹ sư cổng · Sản phẩm và kinh doanh · Vận hành và pháp lý (README mục 3, phút 0–15).
 
-| STT | Họ và tên | MSSV | Vai | Trưởng nhóm |
-| --: | --------- | ---- | --- | :---------: |
-|   1 | Võ Hồng Lương| 2A202603839 | Vận hành và pháp lý | Đúng |
-|   2 | Hồ Anh Tú | 2A202603811 | Kỹ sư cổng| _|
-|   3 | Lê Đức Trúc Lâm | 2A202603787 | Kỹ sư cổng | _ |
-|   4 | Triệu Hải Đăng Trình | 2A202603874 | Sản phẩm và kinh doanh | _ |
+| STT | Họ và tên            | MSSV        | Vai                    | Trưởng nhóm |
+| --: | -------------------- | ----------- | ---------------------- | :---------: |
+|   1 | Võ Hồng Lương        | 2A202603839 | Vận hành và pháp lý    |    Đúng     |
+|   2 | Hồ Anh Tú            | 2A202603811 | Kỹ sư cổng             |     \_      |
+|   3 | Lê Đức Trúc Lâm      | 2A202603787 | Kỹ sư cổng             |     \_      |
+|   4 | Triệu Hải Đăng Trình | 2A202603874 | Sản phẩm và kinh doanh |     \_      |
 
 Ghi `members` trong `submission/submission.json` theo dạng `"HoVaTen-MSSV"`, khớp bảng trên.
 
@@ -33,6 +33,7 @@ Vai Vận hành và pháp lý, kiêm trưởng nhóm và chủ repo. Vòng 1: c�
 ### Đóng góp cụ thể
 
 Vòng 1
+
 - Tạo repo, mời thành viên, điền bảng thành viên và thông tin nhóm; soát và gộp mọi nhánh của bàn.
 - Câu 1.2: mục tiêu của chị Oanh (sổ hoàn tiền và lỗi hãng khớp với hãng, shop mà không sửa tay) và chị Hạnh (ca chuyển sang vừa sức 6 ca/giờ, SLA 60 phút, có ghi chú giải thích).
 - Câu 1.4: telemetry production đo lỗi ghi oan cho mỗi hãng trong 24 giờ, đối chiếu `delay_cause` với `fault_causes`, ngưỡng đỏ 1 lỗi oan.
@@ -43,6 +44,7 @@ Vòng 1
 - Quyết định v1 **Tiếp tục**: mốc prepared đạt cả 9 ngưỡng đã ký; sửa `business.cost_budget_per_ticket_vnd` từ 7500 về 1500 (trần tiền máy).
 
 Vòng 2 (thẻ S7)
+
 - Cố định LF cho các file bị khoá (`lab10/`, `data/`, `incidents/`, `tests/`) để kiểm toàn vẹn đạt trên Windows.
 - C1: cổng pháp lý vòng 1 đã đưa số lần lộ PII của S7 về 0; dòng còn lỗi duy nhất là thiếu chỉ số mới trong `monitors.py`.
 - C3.3 hiệu chỉnh lòng tin cho người đặt hàng và người nhận quà; C4 HAZOP của thẻ trên `notify_carrier` (4 dòng, có nhánh chưa thấy trên trace); câu 3.3 giả định môi trường về chữ khách gõ và người nhận đơn quà.
@@ -74,12 +76,14 @@ Vai Kỹ sư cổng 2: kiểm thử hành vi, chỉ số theo dõi và fault tre
 ### Đóng góp cụ thể
 
 Vòng 1
+
 - Câu 1.5: đọc khoảng tin cậy của hai kết quả và nêu kết luận từ độ bất định, thay vì chỉ so số điểm.
 - Câu 2.5: viết pre-mortem theo các lăng kính, nêu rủi ro kỹ thuật, kinh doanh, vận hành và pháp lý, kèm bằng chứng để nhóm cân nhắc cổng phòng ngừa.
 - Câu 2.7: đề xuất cách tránh chỉnh cổng trên chính bộ dùng để đánh giá: giữ nhóm đối chứng và để bộ sự cố/bài kiểm tra ẩn độc lập; không đặc chế theo mã ticket hay câu chữ.
 - B7.2: hoàn thành phân tích rò dữ liệu (câu 2.7) trong Phiếu B.
 
 Vòng 2 (thẻ S7)
+
 - C6: dựng fault tree cho việc PII của người nhận quà bị gửi cho hãng, dựa trên trace S7 và tách nhánh `customer_note`, `recipient_contact` với giả định người nhận đã đồng ý; bổ sung yêu cầu phần mềm và giả định môi trường cho từng nhánh.
 - C8: thêm `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate` vào `lab10/monitors.py`; mô tả dữ liệu, công thức, ngưỡng và điểm mù. Sửa cách gọi/chỉ số sau khi đối chiếu với mục monitor trong report.
 - C9: chạy lại guards/config, đối chiếu kết quả S7 và bộ nền, rồi cập nhật fault tree sau sửa: cổng allowlist chặn hai nhánh đã thấy; nhánh PII nằm trong trường được phép hoặc kênh khác vẫn cần kiểm soát.
@@ -96,6 +100,43 @@ Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, c
 
 Học được rằng fault tree cần nối bằng chứng của trace với từng nhánh và phân biệt rõ điều cổng chặn được với giả định môi trường còn hở. Còn chưa chắc cách monitor theo tên trường có thể nhận ra PII nằm trong giá trị của một trường được phép hay không.
 
+## HoAnhTu-2A202603811
+
+### Phần việc phụ trách
+
+Vai Kỹ sư cổng (`lab10/guards.py`, chạy lệnh `eval`, `gate`, `trace`, `checkpoint`, `grade`).
+
+- Vòng 1: cài đặt và chạy bộ test công khai (`TV1-01`); câu 1.3 thiết kế offline metric (Phiếu A mục A2, cột Offline); đọc `guards.py`, `helpers.py`, `tools.py`, `agent.py` và Phụ lục C để chuẩn bị cổng; phối hợp soát định nghĩa chỉ số với Sản phẩm & Kinh doanh trước khi ký; câu 2.1 chạy mốc `base` và đánh giá cổng tự chặn hay người duyệt (Phiếu B mục B0 dòng 1, B1); câu 2.2 dò `trace T-002@55` và điền bảng soát lỗi (B2); đóng góp lăng kính kỹ thuật cho pre-mortem (B6); câu 2.6 xây dựng 3 cổng phòng ngừa vòng 1 trong `lab10/guards.py` và chốt cổng vòng 1 (`prepared`).
+- Vòng 2 (thẻ S7): nhận thẻ S7 và chạy `lab10.grade` mốc `prepared` (Phiếu C mục C0, C1); câu 3.1 dò trace hai kiểu lỗi khác nhau và điền bảng soát lỗi của thẻ (Phiếu C mục C2); kiểm tra logic Cổng 4 (`notify_carrier` allowlist) và chuẩn bị Demo ba mốc (`base · prepared · after`).
+
+### Đóng góp cụ thể
+
+Vòng 1
+
+- Cài đặt môi trường, chạy `unittest` kiểm tra 13/13 test đạt (`OK`).
+- Câu 1.3: chọn bước `ghi lỗi hãng` (`file_carrier_fault`), thiết kế thước đo tỉ lệ gọi sai căn cứ trên tổng số lần gọi; dữ liệu từ `110` lần chạy (`22 ticket × 5 seed`) đối chiếu nhãn `faults`; quy định rõ xử lý ca không gọi và `missing_data` để hai người tính độc lập ra cùng số, kèm điểm mù (bỏ sót lỗi hãng và sai tracking DB gốc).
+- Câu 2.1: chạy `eval` mốc `base` (`R-base-before-20261119-173442-bde05c`) và `gate`; chỉ ra 2 chỉ số an toàn chưa đạt (`wrongful_refund_vnd = 20000`, `wrongful_carrier_faults = 1`), phân khúc kho `HCM` và hãng `VNX` xấu nhất về an toàn, phân khúc kho `?` tốn `10359đ/ticket > làm tay (10000đ)`; đề xuất cơ chế **kết hợp** (tự chặn với chỉ số an toàn, người duyệt đánh giá phân khúc để chọn quyết định).
+- Câu 2.2: dò `trace T-002@55`, bóc tách 2 lỗi chìm (hoàn tiền sai `20000đ` do `03 model_override` và phạt oan hãng `VNX` / tài xế `TX-VNX-03`), xác định nguồn từ Đầu vào và Thứ bậc hệ thống, đề xuất cổng kiểm soát theo tracking DB và tín hiệu theo dõi.
+- Câu 2.5 & 2.6: viết 3 lý do kỹ thuật từ `T-002@55` và `lab10/agent.py` cho pre-mortem; triển khai 3 cổng vòng 1 trong `lab10/guards.py`: `pre_guard` ghim `effective_policy`, `write_gate` nhánh `issue_refund` (chặn `fail_open`, đổi `payer`, và đối chiếu `entitlement_vnd` từ DB) và nhánh `file_carrier_fault` (kiểm tra `carrier_at_fault` và sửa đúng kiện/hãng/số ngày theo DB).
+
+Vòng 2 (thẻ S7)
+
+- Nhận thẻ S7 và chạy `lab10.grade` ở mốc `prepared` trước khi sửa (`R-S7-grade-20261119-201749-604cca`).
+- Câu 3.1 (Phiếu C mục C2): dò trace `S7-01@11` (lộ tên, SĐT, địa chỉ qua `customer_note` — nguồn Đầu vào) và `S7-20@11` (lộ `recipient_contact` tự gắn ở đơn quà `is_gift` — nguồn Thứ bậc hệ thống); xác định cả hai là lỗi chìm gây `30` lần lộ PII và `pass_rate = 0.25` ở `base`, gắn với 2 metric `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate`.
+- Rà soát và giải thích đầy đủ 4 cổng trong `lab10/guards.py` (kể cả Cổng 4 allowlist `carrier_notice_fields` dùng `Verdict.modify` cho `notify_carrier`) phục vụ Demo ba mốc.
+
+### Bằng chứng
+
+- Mã commit: `0a73cc0`, `73befa2`, `c1f2d33`, `7746ae4` (nhận thẻ S7), và các commit trên nhánh `hoanhtu-TV1` (Phiếu A mục A2, Phiếu B mục B0–B2, Phiếu C mục C2).
+- Mã lần chạy (`runs/`): `R-base-before-20261119-173442-bde05c` (base bộ nền), `R-S7-grade-20261119-201749-604cca` (grade prepared S7), `R-S7-before-20261119-201750-604cca`, `R-S7-prepared-20261119-201750-604cca`, `R-S7-grade-20261119-232307-088e47` (`PASS-VISIBLE` sau Cổng 4).
+- Dòng trong phiếu: Phiếu A mục A2 (câu 1.3); Phiếu B mục B0 dòng 1, B1, B2, B6 (kỹ thuật), B7.1; Phiếu C mục C0, C1, C2.
+
+- Có dùng trợ lý AI (Google AI Studio hỗ trợ phân tích bài toán/review logic và Codex hỗ trợ soạn/chạy lệnh trên repo); mọi output trace (`T-002@55`, `S7-01@11`, `S7-20@11`), diff Markdown, kết quả test và số liệu report đều được tôi trực tiếp kiểm tra lại trước khi commit.
+
+### Exit ticket
+
+- Một điều học được: Cổng bảo vệ ở tầng hệ thống nằm ngoài model và prompt (đối chiếu nguồn sự thật DB và dùng allowlist thay vì blacklist) giúp ngăn hẳn các lỗi chìm nghiêm trọng như `model_override` hay rò rỉ PII sang bên thứ ba mà không cần làm tăng tải hàng chờ người duyệt.
+- Một điều còn chưa chắc: Khi triển khai thực tế với dữ liệu thật và các biến thể câu chữ/tình huống mới ngoài bộ mock (ví dụ khi tracking DB gốc bị nhập trễ hoặc sai nguyên nhân), ranh giới giữa `Verdict.modify`/`deny` tự động và `escalate` cho người duyệt có giữ được cân bằng giữa an toàn pháp lý và chi phí vận hành hay cần chỉnh lại sau pilot tuần đầu.
 
 ## TrieuHaiDangTrinh-2A202603874
 
