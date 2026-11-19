@@ -81,26 +81,26 @@ Ba loại lỗi:
 
 | # | Lỗi: người ta thấy gì (dán dòng trace / sổ cái) | Ai gặp, ai chịu | Hệ trọng (thấp / cao) | Loại lỗi (giới hạn hệ thống / ngữ cảnh / chìm) |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 | `T-002@55: 03 model_override {"db": 2, "ticket": 5} -> 06 issue_refund 20000đ; SỔ CÁI ghi amount_vnd: 20000 (NHÃN đúng là denied, 0đ; O-1002-P1 giao 2026-11-14 vs hẹn 2026-11-12 = trễ 2 ngày).` | Khách C-02 nhận reply hoàn tiền; LogiX (kế toán đối soát / ngân sách Finance) chịu thiệt 20.000đ. | cao | chìm |
+| 2 | `T-002@55: 07 file_carrier_fault {"carrier_id": "VNX", "driver_id": "TX-VNX-03", "delay_days": 5} -> LỖI HÃNG và 08 notify_carrier delay_days: 5 (NHÃN đúng là faults: []).` | Bên thứ ba (hãng VNX và tài xế TX-VNX-03) bị phạt oan và tính oan strike. | cao | chìm |
 
 ### Phần 2 · Tìm nguồn (đánh dấu câu nào đúng với từng lỗi)
 
 | Câu hỏi | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | | |
-| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | | |
-| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | | |
-| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | | |
+| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | Có — LLM gán `trust_claim: true` cho `claimed_delay_days: 5` của khách để ghi đè tracking DB. | Có — con số `delay_days: 5` khách khai lan truyền thẳng sang `file_carrier_fault` và `notify_carrier`. |
+| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | Không — tracking DB đã có đủ `promised_date`, `delivered_date`, `db_delay_days = 2`. | Không — tracking DB đã có đủ `db_delay_days = 2` và `delay_cause = CARRIER`. |
+| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | Có — chưa khóa tracking DB làm nguồn sự thật duy nhất (SSOT), để model tự ghi đè trước khi tính tiền. | Có — lệnh ghi lỗi hãng không đối chiếu lại `H.carrier_at_fault(policy, parcel, db_delay_days)` trên tracking DB. |
+| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | Không (chạy 1 ticket, LLM không bị 429). | Không. |
 
 ### Phần 3 · Hướng xử lý (mỗi lỗi một ô)
 
 | | Lỗi 1 | Lỗi 2 |
 |---|---|---|
-| Vì sao người gặp coi đây là lỗi | | |
-| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | | |
-| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | | |
-| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | | |
+| Vì sao người gặp coi đây là lỗi | Kế toán đối soát (NV-OANH) kiểm sổ cuối tuần thấy đơn O-1002 trễ 2 ngày (không đủ điều kiện hoàn) nhưng sổ cái vẫn chi 20.000đ. | Hãng VNX đối soát dữ liệu giao của TX-VNX-03 thấy chỉ trễ 2 ngày nhưng nhận thông báo bị phạt oan lỗi trễ 5 ngày. |
+| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | Chặn bằng hệ thống + trao quyền cho người (cổng `write_gate` kiểm tra `entitlement_vnd` theo `db_delay_days`; deny nếu không đủ điều kiện hoặc escalate khi khách khai lệch tracking). | Chặn bằng hệ thống (cổng `write_gate` trước `file_carrier_fault` bắt buộc khớp `H.carrier_at_fault` với `db_delay_days`, deny nếu không thỏa). |
+| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | Với T-002@55, cổng chặn/chuyển người duyệt (NV-HANH) → xác nhận trễ 2 ngày → từ chối hoàn 0đ, sổ cái sạch. | Lệnh `file_carrier_fault` bị deny (không gọi `notify_carrier`) → VNX và TX-VNX-03 không bị phạt oan. |
+| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | Tín hiệu `monitors.py`: đếm tỉ lệ/số lần phát sinh sự kiện `model_override` (`delay_days_used != db_delay_days`). | Tín hiệu `monitors.py`: đếm số lệnh ghi lỗi hãng không đạt điều kiện `carrier_at_fault` theo `db_delay_days`. |
 
 **Ví dụ (bộ nền, đừng chép):** `T-002@55` · sổ cái có dòng hoàn 20.000đ, hãng VNX nhận một lỗi, trong khi tracking ghi trễ 2 ngày ·
 khách không thấy gì sai, hãng chịu · cao · **lỗi chìm**. Nguồn: đầu vào (đặt sai trọng số cho con số khách tự khai). Xử lý:
