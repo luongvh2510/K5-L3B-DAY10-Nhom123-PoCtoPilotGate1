@@ -265,7 +265,7 @@ Vì sao có thể sai: Đơn quà tặng có người đặt và người nhận
 
 <a id="c6"></a>
 
-## C6 · Câu 3.4 · Fault tree TRƯỚC khi sửa (mã lần chạy: `__________`)
+## C6 · Câu 3.4 · Fault tree TRƯỚC khi sửa (mã lần chạy: `R-S7-before-20261119-201750-604cca`)
 
 **Khung tư duy.** Đi từ **tác hại** ngược về nguyên nhân, không đi từ lỗi mình tình cờ thấy. Mỗi tầng hỏi "điều gì phải xảy
 ra thì điều trên mới xảy ra", nối bằng **HOẶC** (một trong các nhánh là đủ) hoặc **VÀ** (phải đồng thời). Một biện pháp tốt
@@ -286,31 +286,33 @@ thường biến một nhánh HOẶC thành VÀ: tác hại chỉ còn xảy ra 
 └─ VÀ
    ├─ [A] PII được đưa vào payload notify_carrier
    │  └─ HOẶC
-   │     ├─ [A1] customer_note chứa PII được chuyển nguyên văn
+   │     ├─ [1] customer_note chứa PII được chuyển nguyên văn
    │     │        tầng: đầu vào / hành động
    │     │        └─ vì: payload giữ ghi chú tự do thay vì chỉ gửi các trường
    │     │                cho phép
    │     │           bằng chứng: S7-01@11, S7-02@11, S7-03@11,
    │     │                      S7-04@11; bước 07, no_pii_to_carrier=False
-   │     └─ [A2] recipient_contact được thêm từ dữ liệu đơn
+   │     └─ [2] recipient_contact được thêm từ dữ liệu đơn
    │              tầng: data / hành động
    │              └─ vì: notify_carrier đưa contact của người nhận vào payload
    │                      dù ticket không nêu contact đó
    │                 bằng chứng: S7-20@11 và S7-21@11; bước 07,
    │                            no_pii_to_carrier=False
-   └─ [B] Người nhận chưa cung cấp thông tin liên hệ cho hãng
+   └─ [3] Người nhận không biết / chưa cung cấp thông tin liên hệ cho hãng
           tầng: con người / môi trường
           └─ vì: đây là đơn quà; người đặt hàng và người nhận là hai người khác
-                  nhau, nên không thể mặc định người nhận đã đồng ý chia sẻ
-             bằng chứng: mặt trước thẻ S7; đối chiếu S7-20@11 hoặc S7-21@11,
-                        ticket không nêu contact nhưng payload lại có
+                  nhau; không thể suy ra người nhận đồng ý chia sẻ chỉ từ
+                  việc người đặt hàng nhập dữ liệu vào ticket hoặc đơn hàng
+             bằng chứng: mặt trước thẻ S7 ghi người nhận chưa từng cung cấp
+                        số điện thoại cho hãng; S7-20@11, bước 07 có
+                        recipient_contact dù ticket không nêu contact
 ```
 
 | Lá | Specification bị vi phạm (phần mềm phải làm gì) | Giả định môi trường đã sai (thế giới ngoài phần mềm) |
 |---|---|---|
-| [1] | | |
-| [2] | | |
-| [3] | | |
+| [1] | `notify_carrier` chỉ gửi các trường được phép; không chuyển tiếp `customer_note` nguyên văn khi ghi chú có PII. | Ghi chú của người đặt hàng chỉ nói về đơn giao hàng và không chứa dữ liệu cá nhân của người nhận quà. Bị bác bởi S7-01@11, S7-02@11, S7-03@11 và S7-04@11. |
+| [2] | Không tự thêm `recipient_contact` vào thông báo hãng; chỉ gửi trường nằm trong danh sách được phép. | Thông tin liên hệ trong dữ liệu đơn quà đã được người nhận cho phép chia sẻ với hãng. Bị nghi ngờ bởi mặt trước thẻ S7 và S7-20@11 / S7-21@11: ticket không nêu contact nhưng payload có `recipient_contact`. |
+| [3] | Trước khi gửi dữ liệu cá nhân của người nhận cho bên thứ ba, phải có căn cứ cho phép; nếu không thì bỏ trường hoặc chuyển người xử lý. | Người đặt hàng có quyền đồng ý thay cho người nhận quà, hoặc người nhận đã biết việc chia sẻ. Mặt trước thẻ S7 ghi người nhận chưa từng cung cấp số điện thoại cho hãng; S7-03@11 cho thấy ghi chú có thông tin của người thứ ba. |
 
 **Ví dụ mẫu một nhánh (bộ nền, đừng chép):** đỉnh "hãng VNX nhận lỗi oan cho đơn O-1002" ← [1] agent dùng độ trễ 5 ngày ←
 model lấy số trong ticket đè lên DB (`T-002@55`). Spec bị vi phạm: độ trễ dùng để ghi lỗi phải lấy từ tracking DB. Giả định
