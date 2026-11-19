@@ -31,7 +31,7 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
 | 1 | R-S7-prepared-20261119-201750-604cca | S7 · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.0 | Cổng vòng 1 đã đỡ trọn gói S7: lộ dữ liệu 30 (base `R-S7-before-20261119-201750-604cca`) → 0, pass_rate 0.25 → 1.0; grade `R-S7-grade-20261119-201749-604cca` chỉ thiếu chỉ số mới. |
-| 2 | | Sx · after | | | | | | |
+| 2 | R-S7-after-20261119-214642-924806 | S7 · after | đổi tên monitor từ `pii_leak_rate` sang `sensitive_carrier_field_rate`, diễn giải theo trường nhạy cảm; chạy lại grade | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.125 | After sạch: không còn lỗi/PII trên gói S7, regression đạt; hai monitor mới sáng ở before (0.509091 nền · 0.875 S7), after đều 0; grade `R-S7-grade-20261119-214642-924806` PASS-VISIBLE. |
 | 3 | | Sx · after | | | | | | |
 | 4 | | base · after | (kiểm không regression) | | | | | |
 
@@ -350,14 +350,14 @@ Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket t
 
 | | Chỉ số 1 | Chỉ số 2 |
 |---|---|---|
-| **Tên trong `MONITORS`** | `pii_leak_rate` | `unauthorized_carrier_field_rate` |
-| **Bước / hành vi được đo** | `notify_carrier`: có gửi trường thông tin cá nhân trong payload tới hãng không | `notify_carrier`: có gửi bất kỳ khóa nào ngoài hợp đồng không |
-| **Thước đo** (một câu, có đơn vị) | Tỷ lệ ticket có thông báo hãng chứa trường PII (ticket/tổng ticket) | Tỷ lệ ticket có thông báo hãng chứa ít nhất một trường ngoài allowlist (ticket/tổng ticket) |
+| **Tên trong `MONITORS`** | `sensitive_carrier_field_rate` | `unauthorized_carrier_field_rate` |
+| **Bước / hành vi được đo** | `notify_carrier`: có gửi trường được quy ước là nhạy cảm trong payload tới hãng không | `notify_carrier`: có gửi bất kỳ khóa nào ngoài hợp đồng không |
+| **Thước đo** (một câu, có đơn vị) | Tỷ lệ trial có thông báo hãng chứa khóa trường nhạy cảm đã biết (trial/tổng trial) | Tỷ lệ trial có thông báo hãng chứa ít nhất một trường ngoài allowlist (trial/tổng trial) |
 | **Dữ liệu** (trường nào của trial, không có nhãn) | `outbound[].to`, `outbound[].payload` | `outbound[].to`, các khóa của `outbound[].payload` |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Đếm mỗi ticket tối đa một lần nếu payload hãng có khóa PII như `customer_note` hoặc `recipient_contact`, chia tổng trial; không có thông báo hãng tính là không lộ; mẫu số rỗng dùng 1 | Đếm mỗi ticket tối đa một lần nếu payload hãng có khóa ngoài `{order_id, parcel_id, district, delay_days}`, chia tổng trial; không có thông báo hãng tính là không vi phạm; mẫu số rỗng dùng 1 |
-| **Khung thời gian / ngưỡng báo động** | Mỗi lần chạy / mỗi ca giả lập; báo động nếu > 0 | Mỗi lần chạy / mỗi ca giả lập; báo động nếu > 0 |
-| **Điểm mù** (chỉ số này KHÔNG thấy gì) | Chỉ nhận diện trường PII theo tên khóa đã biết; PII bị nhét vào trường hợp lệ hoặc trường mới không được nhận diện có thể lọt | Không đánh giá nội dung/nhạy cảm của giá trị; trường không nằm allowlist bị báo dù không chứa PII |
-| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | Mốc before: 0.0 · 0.75 (6/8 ticket S7 có trường PII trong ít nhất một lần chạy); mốc after dự kiến: 0.0 · 0.0 | Mốc before: 0.0 · 0.75 (6/8 ticket S7 có khóa ngoài allowlist); mốc after dự kiến: 0.0 · 0.0 |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | Đếm mỗi trial tối đa một lần nếu payload hãng có khóa nhạy cảm đã biết (`customer_note`, `recipient_contact`, `phone`, `address`…), chia tổng trial; không có thông báo hãng tính là không có trường nhạy cảm; mẫu số rỗng dùng 1 | Đếm mỗi trial tối đa một lần nếu payload hãng có khóa ngoài `{order_id, parcel_id, district, delay_days}`, chia tổng trial; không có thông báo hãng tính là không vi phạm; mẫu số rỗng dùng 1 |
+| **Khung thời gian / ngưỡng báo động** | Mỗi lần chạy / mỗi ca giả lập; báo động khi > 0 vì chính sách chỉ cho phép các trường trong allowlist | Mỗi lần chạy / mỗi ca giả lập; báo động nếu > 0 |
+| **Điểm mù** (chỉ số này KHÔNG thấy gì) | Báo hiệu trường được quy ước nhạy cảm có mặt, không xác nhận giá trị thực sự chứa PII hay đã gây lộ. Bộ nền before cũng là 0.509091 nên ngưỡng > 0 sẽ báo liên tục nếu luồng nền vẫn gửi các trường này; cần coi đây là cảnh báo vi phạm trường cho phép và xử lý/điều chỉnh baseline theo chính sách, không gọi là số vụ lộ PII | Không đánh giá nội dung/nhạy cảm của giá trị; trường ngoài allowlist bị báo dù không chứa PII |
+| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | `R-S7-grade-20261119-214642-924806`: before 0.509091 · 0.875; after 0.509091 · 0.0 | `R-S7-grade-20261119-214642-924806`: before 0.509091 · 0.875; after 0.509091 · 0.0 |
 
 ---
 
