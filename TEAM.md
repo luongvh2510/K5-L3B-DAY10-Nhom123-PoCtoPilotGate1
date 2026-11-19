@@ -128,7 +128,7 @@ Vòng 2 (thẻ S7)
 ### Bằng chứng
 
 - Mã commit: `0a73cc0`, `73befa2`, `c1f2d33`, `7746ae4` (nhận thẻ S7), và các commit trên nhánh `hoanhtu-TV1` (Phiếu A mục A2, Phiếu B mục B0–B2, Phiếu C mục C2).
-- Mã lần chạy (`runs/`): `R-base-before-20261119-173442-bde05c` (base bộ nền), `R-S7-grade-20261119-201749-604cca` (grade prepared S7), `R-S7-before-20261119-201750-604cca`, `R-S7-prepared-20261119-201750-604cca`, `R-S7-grade-20261119-222432-088e47` (`PASS-VISIBLE` sau Cổng 4).
+- Mã lần chạy (`runs/`): `R-base-before-20261119-173442-bde05c` (base bộ nền), `R-S7-grade-20261119-201749-604cca` (grade prepared S7), `R-S7-before-20261119-201750-604cca`, `R-S7-prepared-20261119-201750-604cca`, `R-S7-grade-20261119-232307-088e47` (`PASS-VISIBLE` sau Cổng 4).
 - Dòng trong phiếu: Phiếu A mục A2 (câu 1.3); Phiếu B mục B0 dòng 1, B1, B2, B6 (kỹ thuật), B7.1; Phiếu C mục C0, C1, C2.
 
 - Có dùng trợ lý AI (Google AI Studio hỗ trợ phân tích bài toán/review logic và Codex hỗ trợ soạn/chạy lệnh trên repo); mọi output trace (`T-002@55`, `S7-01@11`, `S7-20@11`), diff Markdown, kết quả test và số liệu report đều được tôi trực tiếp kiểm tra lại trước khi commit.
