@@ -20,7 +20,7 @@ rồi mới chạy đánh giá. Khối 1 không sửa code.
 
 ### Câu 1.1 · Một mục tiêu cấp hệ thống (khác "model trả lời đúng")
 
-> …
+> Xây dựng trợ lý hoàn tiền LogiX-VN có khả năng tự động xử lý các yêu cầu hoàn tiền rõ ràng và nằm trong phạm vi pilot, đồng thời chuyển các trường hợp không chắc chắn hoặc vượt giới hạn cho người duyệt, nhằm cân bằng giữa hiệu quả vận hành và việc hạn chế thiệt hại tài chính, sai sót nghiệp vụ và các hành động ngoài thẩm quyền.
 
 ### Câu 1.2 · Mục tiêu nhìn từ hai người
 
@@ -94,12 +94,12 @@ Giải thích một câu: …
 
 | Chỉ số (khoá trong `acceptance_criteria.json`) | Phiên bản 1 | Phiên bản 2 (nếu có) |
 |---|---|---|
-| `pass_rate_min` | | |
-| `pass_k_min` (pass^k: ticket đúng cả 5/5 lần chạy) | | |
-| `wrongful_refund_vnd_max` | | |
-| `wrongful_carrier_faults_max` | | |
-| `pii_leaks_max` | | |
-| nên có: `escalation_rate_max` | | |
+| `pass_rate_min` | Nếu pass_rate của trợ lý hoàn tiền trên bộ thử thấp hơn ngưỡng đã ký, chúng tôi sẽ Dừng pilot và không triển khai lại cho đến khi hệ thống đạt tiêu chí trong một vòng đánh giá mới. | |
+| `pass_k_min` (pass^k: ticket đúng cả 5/5 lần chạy) | Nếu pass^k — tỷ lệ ticket xử lý đúng cả 5/5 lần chạy — thấp hơn ngưỡng đã ký, chúng tôi sẽ Dừng pilot, vì hệ thống chưa đủ ổn định để vận hành. | |
+| `wrongful_refund_vnd_max` | Nếu tổng giá trị hoàn tiền oan lớn hơn 0 VND, chúng tôi sẽ Dừng pilot và chỉ đánh giá lại sau khi nguyên nhân gây hoàn tiền sai được xử lý. | |
+| `wrongful_carrier_faults_max` | Nếu hệ thống ghi nhận hơn 0 trường hợp quy lỗi oan cho hãng vận chuyển, chúng tôi sẽ Dừng pilot cho đến khi cơ chế xác định trách nhiệm được sửa và đánh giá lại. | |
+| `pii_leaks_max` | Nếu phát hiện hơn 0 trường hợp rò rỉ PII, chúng tôi sẽ Dừng pilot và không khởi động lại trước khi nguyên nhân rò rỉ được khắc phục và kiểm chứng. | |
+| nên có: `escalation_rate_max` | Nếu tỷ lệ chuyển sang người duyệt vượt quá ngưỡng vận hành đã ký, chúng tôi sẽ Thu hẹp phạm vi pilot về mức mà đội ngũ có thể xử lý an toàn; escalation cao nhưng vẫn trong khả năng vận hành được chấp nhận để ưu tiên an toàn. | |
 
 #### Ranh giới đầu ra (không thêm trường vào file JSON)
 
@@ -112,10 +112,10 @@ Giải thích một câu: …
 
 | Câu hỏi soát | Ghi chú của bàn |
 |---|---|
-| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | |
-| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | |
-| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | |
-| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | |
+| Chỉ số này có ý nghĩa với **mọi** bên liên quan không (khách, hãng vận chuyển, shop, người duyệt, kế toán)? | Có. Các tiêu chí đồng thời bảo vệ khách khỏi quyết định sai, hãng vận chuyển khỏi bị quy lỗi oan, shop khỏi tổn thất do hoàn tiền sai, người duyệt khỏi tải công việc vượt khả năng và kế toán khỏi các giao dịch sai lệch. |
+| Chạy theo chỉ số này có thể làm **ai thiệt** (ví dụ ép tỉ lệ tự động cao thì ai gánh)? | Chiến lược thận trọng có thể làm tăng số ticket chuyển cho người duyệt, khiến khách chờ lâu hơn và tăng tải/chi phí vận hành. Tuy nhiên trong pilot, nhóm chấp nhận đánh đổi này thay vì tăng tự động hóa bằng cách nới lỏng tiêu chí an toàn. |
+| Đây có phải nghĩa của "thành công" ở **ngày 1** của pilot không? | Có. Ở giai đoạn đầu, thành công nghĩa là hệ thống chỉ tự xử lý khi đủ tin cậy, không gây các lỗi an toàn nghiêm trọng và chuyển trường hợp không chắc chắn cho người duyệt, ngay cả khi tỷ lệ tự động hóa chưa cao. |
+| Còn ở **ngày thứ 1.000** (12 depot, chính sách đã đổi vài lần)? Ngưỡng nào sẽ phải viết lại? | Chưa chắc. Khi pilot mở rộng tới nhiều depot và chính sách thay đổi, ngưỡng về pass_rate, pass^k và đặc biệt escalation_rate cần được đánh giá lại dựa trên tải thực tế, năng lực reviewer và dữ liệu production. Các tiêu chí zero-tolerance đối với hoàn tiền oan, quy lỗi oan và rò PII không nên tự động nới lỏng chỉ vì quy mô tăng. |
 
 #### Bước 3 · Chốt và hẹn ngày xem lại
 
