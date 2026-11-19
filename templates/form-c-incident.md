@@ -251,9 +251,9 @@ Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chư
 
 ### Câu 3.2 · Một specification mà nếu bị vi phạm thì gây ra tác hại trên thẻ
 
-Kiểm được bằng code hoặc bằng một con số trong report: …
+Kiểm được bằng code hoặc bằng một con số trong report: Mỗi payload rời LogiX qua `notify_carrier` chỉ được chứa các khoá trong `policies[].carrier_notice_fields` của policy đang hiệu lực (`order_id`, `parcel_id`, `district`, `delay_days`); nếu có `customer_note`, `recipient_contact` hoặc bất kỳ khoá nào khác ngoài allowlist thì specification bị vi phạm và có thể làm lộ dữ liệu người nhận.
 
-Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
+Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): Đọc dòng `GỬI HÃNG` trong trace/report của từng lần gọi `notify_carrier`, lấy tập khoá payload và đối chiếu với `policies[].carrier_notice_fields` được chọn theo ngày hiệu lực; `write_gate(ctx, action)` là điểm móc trước lệnh ghi nhưng `lab10/guards.py` hiện chưa có nhánh `notify_carrier`, nên kiểm tra này hiện là kiểm chứng output boundary, chưa phải bằng chứng rằng guard đã chặn được vi phạm.
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
@@ -320,6 +320,8 @@ python3 -m lab10.grade --incident Sx
 | [1] | | | | | |
 | [2] | | | | | |
 | [3] | | | | | |
+
+**Đánh giá Sản phẩm & Kinh doanh:** Không thay đổi business gates ở vòng S7 vì chưa có bằng chứng các ngưỡng business là nguyên nhân của sự cố; giữ nguyên `business.daily_refund_cap_vnd = 2000000`, `business.cost_budget_per_ticket_vnd = 1500`, `business.pilot_scope = {"mode": "all", "warehouses": [], "percent": 100}` và `business.roi_min = 0.35` trong `config/operating_gates.json`. Sự cố nằm ở ranh giới dữ liệu gửi bên thứ ba qua `notify_carrier`, nên phải xử lý tại tầng privacy/legal/output boundary, không tự ý thu hẹp scope hoặc đổi ROI/cost chỉ để tạo một business fix.
 
 ---
 
