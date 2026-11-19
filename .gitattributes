@@ -3,3 +3,7 @@ lab10/guards.py text eol=lf
 lab10/guards_round1.py text eol=lf
 config/operating_gates.json text eol=lf
 config/operating_gates.round1.json text eol=lf
+lab10/** text eol=lf
+data/** text eol=lf
+incidents/** text eol=lf
+tests/** text eol=lf

@@ -5,7 +5,7 @@
 - Tên nhóm: `Nhom123`
 - Lớp: `L3B`
 - Repo của bàn: `K5-L3B-DAY10-Nhom123-PoCtoPilotGate1`
-- Thẻ sự cố đã bốc (S1–S8):
+- Thẻ sự cố đã bốc (S1–S8): S7
 
 ## Thành viên
 
