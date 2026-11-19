@@ -65,7 +65,8 @@ Có dùng trợ lý AI (Claude Code) để đọc code của lab, viết nháp c
 
 ### Exit ticket
 
-(Viết sau buổi học.)
+- Một điều học được: phần lớn rủi ro của trợ lý nằm ngoài model, ở dữ liệu rời hệ thống và ở quy trình quanh nó. Ở thẻ S7, cổng pháp lý vòng 1 chặn theo tên trường đã đưa số lần lộ dữ liệu về 0, nhưng chỉ GIẢM khả năng; phải đổi sang danh sách cho phép theo `carrier_notice_fields` mới NGĂN được. Con số đẹp chưa chắc đã là bảo đảm.
+- Một điều còn chưa chắc: chỉ số đo theo tên khoá trong payload không biết giá trị có chứa dữ liệu cá nhân hay không, và bộ mock không đo được người nhận quà có đồng ý hay không. Cần đo lại trên payload thật và kênh phản ánh của người không phải khách hàng trước Bước đánh giá 2.
 
 ## LeDucTrucLam-2A202603787
 
