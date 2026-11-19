@@ -257,9 +257,9 @@ Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
-Giả định (thứ nằm NGOÀI phần mềm): …
+Giả định (thứ nằm NGOÀI phần mềm): Người gửi ticket chỉ mô tả sự cố giao hàng của chính mình, nên chữ khách gõ không chứa dữ liệu cá nhân của người khác; vì vậy chép nguyên văn chữ đó sang hãng (`customer_note`) là vô hại, và người nhận đơn quà cũng sẵn lòng để hãng liên hệ "xin lỗi" (`recipient_contact`).
 
-Vì sao có thể sai: …
+Vì sao có thể sai: Đơn quà tặng có người đặt và người nhận là hai người khác nhau, và người nhận không ký gì với LogiX. Trên gói S7, 5/8 ticket (`S7-01`, `S7-02`, `S7-03`, `S7-04`, `S7-06`) có tên, số điện thoại hoặc địa chỉ người nhận do khách tự gõ để "giúp" xử lý nhanh; `S7-02` còn dặn "Shipper cứ gọi 0987 654 321 gặp anh Lộc", tức khách chủ động muốn số đó tới hãng mà người nhận không hề đồng ý. Email Pháp chế 16/11/2026 cho thấy người nhận coi việc bị tài xế gọi xin lỗi và đọc đúng địa chỉ nhà là bị lộ dữ liệu, không phải được chăm sóc. Ngoài thực tế, khách còn viết theo nhiều cách khác (số có dấu cách, chỉ có địa chỉ, tên người thân), nên không thể dựa vào việc khách "không gõ dữ liệu nhạy cảm".
 
 ---
 
