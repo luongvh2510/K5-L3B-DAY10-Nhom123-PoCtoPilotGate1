@@ -71,9 +71,9 @@ nhau chia cho số lần chạy có sự kiện `proposal`; lần chạy không 
 
 ### Câu 1.5 · Chọn MỘT kết luận và giải thích một câu
 
-Số minh hoạ trong đề (không phải số của bàn). Khoanh: **(a) · (b) · (c) · (d)**
+Số minh hoạ trong đề (không phải số của bàn). Khoanh: **~~(a)~~ · _(b)_ · ~~(c)~~ · ~~(d)~~**
 
-Giải thích một câu: …
+Giải thích một câu: Chưa đủ căn cứ để kết luận Y tốt hơn X, vì khoảng tin cậy lớn của X không cho thấy khác biệt rõ ràng giữa kết quả của X và Y
 
 ---
 
