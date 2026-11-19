@@ -413,26 +413,30 @@ Ghi các dòng đổi sau sự cố. Mỗi dòng vẫn phải có một PIC có 
 
 | # nhóm | Trạng thái mới (Xong / Chưa / Không áp dụng) | Bằng chứng mới (mã lần chạy, mục phiếu, số trong report) | PIC |
 |---|---|---|---|
-| | | | |
-| | | | |
+| 1 · Chất lượng | Xong | S7 after `R-S7-after-20261119-221712-e8d69d`: pass_rate 1.0 [1.0; 1.0], pass_k 1.0, PII 0 (base của thẻ: pass 0.25, PII 30). Bộ nền after `R-base-after-20261119-221718-e8d69d`: pass 1.0, không ca mới hỏng. Tự kiểm tra `R-S7-grade-20261119-221728-e8d69d`: regression ✅ | Lê Đức Trúc Lâm |
+| 3 · Bảo mật | Xong | Chữ khách gõ (`customer_note`) không còn đi ra bên thứ ba: cổng 4 trong `write_gate` chỉ giữ khoá của `carrier_notice_fields`, `district` lấy từ DB (C7 dòng [1]); HAZOP của thẻ ở C4 (guideword PERTURBED trên `notify_carrier`) | Võ Hồng Lương |
+| 4 · Quyền hạn | Xong | `write_gate` giờ có cổng trước cả 3 lệnh ghi ra ngoài: `issue_refund`, `file_carrier_fault`, `notify_carrier` (cổng 4, `Verdict.modify`); `send_reply` gửi cho chính khách nên chưa cần cổng; 4 công tắc trong `config/switches.json` vẫn `on`, NV-TUNG giữ | Hồ Anh Tú |
+| 7 · Vận hành | Xong | `lab10/monitors.py` có 2 chỉ số mới `sensitive_carrier_field_rate`, `unauthorized_carrier_field_rate` (C8; tự kiểm tra monitor ✅, before 0.509 nền · 0.875 thẻ, after 0.0 · 0.0); Runbook 2 thêm 2 dòng tín hiệu (Runbook 4 dưới đây); `operations` không đổi (0 ca ùn, chờ lâu nhất 0 phút) | Võ Hồng Lương |
+| 8 · Con người, pháp lý | Xong | Người nhận quà là bên thứ ba có trong checklist; `legal.pii_fields_blocked_to_third_party` từ 2 lên 10 tên trường (lớp 2, GIẢM) và cổng 4 danh sách cho phép (NGĂN) (C7); PIC rủi ro lộ dữ liệu người nhận là NV-TUNG (C10 dòng 1); `pii_leaks` S7 30 → 0 | Võ Hồng Lương |
+| 9 · Quyết định | Chưa | Quyết định v2 ở C12 chờ vai Sản phẩm và kinh doanh viết, dựa trên `R-S7-grade-20261119-221728-e8d69d` (mọi ngưỡng đã ký đạt, không vượt trần) | Triệu Hải Đăng Trình |
 
 ### Runbook 4 · Sau sự cố trên thẻ (vòng 2)
 
 | Câu hỏi | Trả lời |
 |---|---|
-| Tín hiệu nào ở Runbook 2 (Phiếu B mục B7.5) lẽ ra phải báo trước sự cố này? Nó đã có chưa? | |
-| Bàn thêm hoặc đổi ngưỡng nào, từ bao nhiêu thành bao nhiêu? | |
-| Bàn đổi gì về **người** (số người trực, ai đứng tên, ai được gọi)? | |
-| Bàn đổi gì về **phạm vi** hoặc **quy trình** (kiểm mẫu, ghi chú giải thích, trần)? | |
-| Nói gì với bên thứ ba bị ảnh hưởng (hãng, shop, người nhận, nhân viên duyệt), ai nói, trong bao lâu? | |
-| Dữ liệu cá nhân nào đã rời hệ thống mà không thu hồi được? Báo cho ai? | |
-| Sự cố lộ ra trước qua số máy đo, phản hồi của người, hay đọc nội dung? Nguồn nào bàn chưa có? | |
+| Tín hiệu nào ở Runbook 2 (Phiếu B mục B7.5) lẽ ra phải báo trước sự cố này? Nó đã có chưa? | Không có. `pii_leaks` trong report cần nhãn nên chỉ có trên bộ eval, và bộ nền không có ca lộ (base `pii_leaks` = 0), nên Runbook 2 không thể báo trước. Tín hiệu lẽ ra báo được là đọc **khoá trong payload gửi hãng**: chỉ số `sensitive_carrier_field_rate` (C8) chạy lại trên bộ nền trước cổng ra 0.509, tức hơn một nửa số lần chạy đã gửi `customer_note` cho hãng ngay từ vòng 1. Chỉ số này mới thêm ở vòng 2 |
+| Bàn thêm hoặc đổi ngưỡng nào, từ bao nhiêu thành bao nhiêu? | Thêm 2 tín hiệu cho Runbook 2 (ghi ở đây, không sửa bảng vòng 1 ở Phiếu B mục B7.5), cùng nguồn `lab10/monitors.py`, người quyết NV-TUNG: `unauthorized_carrier_field_rate` (bình thường 0; ĐỎ > 0 → dừng pilot, vì nghĩa là cổng 4 hỏng) và `sensitive_carrier_field_rate` (bình thường 0; ĐỎ > 0 → dừng pilot). `legal.pii_fields_blocked_to_third_party` từ 2 lên 10 tên trường. Các ngưỡng khác giữ nguyên: chuyển người 0,35, chờ 60 phút, chi phí 7.500đ, ROI 0,35 |
+| Bàn đổi gì về **người** (số người trực, ai đứng tên, ai được gọi)? | Số người trực giữ 1 (`operations.reviewers_on_shift`), vì S7 after có 0 ca ùn, chờ lâu nhất 0 phút, tỉ lệ chuyển người 0.0; cổng 4 dùng `modify` nên không thêm ca cho người duyệt. Đứng tên rủi ro lộ dữ liệu người nhận: NV-TUNG (C10 dòng 1). Người được gọi thêm khi có tín hiệu đỏ pháp lý: bộ phận Pháp chế LogiX (người gửi email của thẻ), qua NV-TUNG |
+| Bàn đổi gì về **phạm vi** hoặc **quy trình** (kiểm mẫu, ghi chú giải thích, trần)? | Phạm vi giữ `all` (độ phủ 1.0, ROI 1.0 trên thẻ, 1.24 trên bộ nền); trần tiền và ngân sách mỗi ticket không đổi (C7 phần business). Quy trình: khi kiểm mẫu 10% (`operations.review_sampling_pct`), NV-HANH đọc thêm dòng `GỬI HÃNG` của trace để xác nhận payload chỉ có 4 trường; `decision_note` vẫn bật |
+| Nói gì với bên thứ ba bị ảnh hưởng (hãng, shop, người nhận, nhân viên duyệt), ai nói, trong bao lâu? | Hãng đã nhận thông báo có dữ liệu người nhận (theo report base của thẻ: VNX 15, GHSH 10, DNB 5 lần): NV-OANH gửi email yêu cầu xoá dữ liệu người nhận khỏi thông báo đã nhận, trong 24 giờ. Người nhận quà phản ánh: CSKH (NV-HANH) gọi xin lỗi, giải thích LogiX đã ngừng gửi, trong ngày. Pháp chế: NV-TUNG gửi báo cáo nguyên nhân (C6) và biện pháp (C7) trong ngày, như email yêu cầu. Nhân viên duyệt: NV-TUNG báo trên `#logix-refund-pilot` là payload gửi hãng giờ chỉ có 4 trường |
+| Dữ liệu cá nhân nào đã rời hệ thống mà không thu hồi được? Báo cho ai? | Tên, số điện thoại người nhận (`recipient_contact`, với đơn quà) và chữ khách gõ có tên, SĐT, địa chỉ nhà người nhận (`customer_note`) đã tới hệ thống của hãng; LogiX không thu hồi được, chỉ yêu cầu hãng xoá. Báo cho Pháp chế (căn cứ pháp lý cụ thể do Pháp chế xác định, thẻ ghi "cần kiểm") và cho người nhận bị ảnh hưởng qua CSKH |
+| Sự cố lộ ra trước qua số máy đo, phản hồi của người, hay đọc nội dung? Nguồn nào bàn chưa có? | Lộ ra qua **phản hồi của người**: người nhận quà phàn nàn, Pháp chế gửi email. Máy đo của bàn lúc đó không thấy (không có chỉ số không cần nhãn nào đọc payload gửi hãng). Nguồn bàn chưa có: kênh nhận phản ánh của người **không phải khách hàng** (người nhận quà không có tài khoản, không mở ticket được); và việc hãng xác nhận đã xoá dữ liệu |
 
 ### Runbook 5 · Ba kịch bản "nếu … thì …" cho tuần đầu chạy thử thật
 
-1. Nếu số ticket tăng gấp ___ lần trong một giờ thì: …
-2. Nếu nhà cung cấp LLM lỗi quá ___ phút thì: …
-3. Nếu người duyệt báo không tin một quyết định của trợ lý thì: …
+1. Nếu số ticket tăng gấp **3** lần trong một giờ (khoảng 9 ticket/giờ so với 3 ticket/giờ ngày thường) thì: NV-HANH theo dõi hàng chờ; hàng chờ từ 4 ca hoặc chờ lâu nhất từ 30 phút thì NV-TUNG gọi thêm 1 người duyệt (`operations.reviewers_on_shift` 1 → 2, thêm 30.000đ/ca) trong 15 phút; có 1 ca chờ quá 60 phút thì NV-TUNG thu hẹp `pilot_scope` còn một kho (`{"mode": "warehouse", "warehouses": ["<kho>"], "percent": 100}`, chọn kho theo `by_segment` của report), ticket các kho khác về làm tay; báo `#logix-refund-pilot`.
+2. Nếu nhà cung cấp LLM lỗi quá **15** phút thì: cổng 2 đã chuyển mọi khoản hoàn `fail_open` sang người, nên hàng chờ sẽ tăng nhanh; NV-TUNG tắt `issue_refund` và `file_carrier_fault` trong `config/switches.json`, mọi ticket về làm tay ở hàng chờ NV-HANH; bật lại khi LLM chạy ổn 30 phút liên tục và một lần `lab10.eval` bộ nền đạt mọi ngưỡng đã ký.
+3. Nếu người duyệt báo không tin một quyết định của trợ lý thì: NV-HANH ghi mã ticket và lý do vào `#logix-refund-pilot`; NV-TUNG đọc trace và `decision_note` trong 60 phút. Nếu là hoàn sai, ghi lỗi hãng oan hay gửi dữ liệu cá nhân thì chạy điều kiện dừng thứ nhất (dừng pilot). Nếu không, tăng `operations.review_sampling_pct` từ 10 lên 20 trong một tuần và chuyển loại quyết định đó cho người tới khi có cổng; NV-OANH xác nhận sổ trước kỳ đối soát.
 
 ---
 
