@@ -154,7 +154,7 @@ Vai Sản phẩm & Kinh doanh. Phụ trách Phiếu A (A1/Q1.1, A4/Q1.6, accepta
 Commit: `ba16cf3` (B3, bản đồ dữ liệu và drift), `4db1b12` (pre-mortem kinh doanh, mục `business` trong `config/operating_gates.json`), `8b4bb52` (C5 câu 3.2, C7 phần business), `cd685d4` (C12 quyết định v2, ba dòng bắt buộc, `submission.json`). Tiêu chí do Trình điền được ký ở commit `649385a`, hash `09f2b195`.
 Mã lần chạy dùng trong C12: base `R-S7-before-20261119-232307-088e47`, prepared `R-S7-prepared-20261119-232307-088e47`, after `R-S7-after-20261119-232307-088e47`, tự kiểm tra `R-S7-grade-20261119-232307-088e47` (PASS-VISIBLE; test ẩn không khả dụng trên máy). Phiếu: B3, B6, B7.4; C5, C7, C12.
 
-(Trình bổ sung: phần việc nào đã dùng trợ lý AI, và dùng công cụ nào.)
+Có sử dụng trợ lý AI (OpenAI Codex) để hỗ trợ đọc và đối chiếu cấu trúc repo, rà soát dữ liệu/evidence trong `data/world.json`, acceptance criteria, operating gates và các report; hỗ trợ soạn, kiểm tra và hoàn thiện các phần Product & Business gồm B3, B6, B7.4, C5, C7 và C12, đồng thời hỗ trợ kiểm tra `submission/submission.json` và các mã lần chạy dùng làm bằng chứng. Các ngưỡng, số liệu, specification, quyết định Gate 1 v2 và nội dung nộp cuối đều được tôi đối chiếu lại với file nguồn, report thực tế và tiêu chí đã ký trước khi chốt.
 
 ### Exit ticket
 
