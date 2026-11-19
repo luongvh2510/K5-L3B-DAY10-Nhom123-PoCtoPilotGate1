@@ -31,9 +31,9 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
 | 1 | R-S7-prepared-20261119-201750-604cca | S7 · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.0 | Cổng vòng 1 đã đỡ trọn gói S7: lộ dữ liệu 30 (base `R-S7-before-20261119-201750-604cca`) → 0, pass_rate 0.25 → 1.0; grade `R-S7-grade-20261119-201749-604cca` chỉ thiếu chỉ số mới. |
-| 2 | | Sx · after | | | | | | |
+| 2 | R-S7-after-20261119-203925-5aede3 | S7 · after | `legal.pii_fields_blocked_to_third_party` thêm 8 tên trường dự phòng (C7 dòng [3]) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.0 | Giữ kết quả của prepared (PII 0); lớp chặn theo tên rộng hơn, chưa có cổng danh sách cho phép. |
 | 3 | | Sx · after | | | | | | |
-| 4 | | base · after | (kiểm không regression) | | | | | |
+| 4 | R-base-after-20261119-203926-5aede3 | base · after | (kiểm không regression) sau thay đổi ở dòng 2 | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.2273 | Bộ nền không đổi so với prepared, không ca mới hỏng, không vượt trần. |
 
 ---
 
@@ -319,7 +319,9 @@ python3 -m lab10.grade --incident Sx
 |---|---|---|---|---|---|
 | [1] | | | | | |
 | [2] | | | | | |
-| [3] | | | | | |
+| [3] | Cổng vòng 1 là **danh sách chặn theo tên trường**: chỉ biết `customer_note`, `recipient_contact`; trường đổi tên hoặc trường mới mang số điện thoại, địa chỉ người nhận sẽ lọt (C4 dòng "Khoá mới trong payload", nhánh chưa thấy trên trace) | `config/operating_gates.json` → `legal.pii_fields_blocked_to_third_party` thêm `recipient`, `recipient_name`, `recipient_phone`, `recipient_address`, `customer_phone`, `customer_address`, `phone`, `street` (giữ hai trường cũ). Giữ `carrier_fault_requires_recorded_cause = true` | Chặn (cổng pháp lý của host, bỏ trường trước khi gửi hãng) | **GIẢM khả năng.** Vẫn chặn theo tên: một tên trường khác hẳn vẫn lọt, và chữ khách gõ vẫn có thể mang dữ liệu nếu ở trường được phép. Đây là lớp phòng thủ thứ hai; **NGĂN** cần cổng danh sách cho phép theo `carrier_notice_fields` trong `write_gate` (phần code của Kỹ sư cổng) | `R-S7-after-20261119-203925-5aede3` (S7: PII 0, pass 1.0); `R-base-after-20261119-203926-5aede3` (bộ nền: pass 1.0, không ca mới hỏng) |
+
+Phần `operations` **không đổi**: sự cố S7 là dữ liệu cá nhân gửi bên thứ ba, không phải người duyệt hay hàng chờ; report S7 prepared và after đều 0 ca ùn, chờ lâu nhất 0 phút, tỉ lệ chuyển người 0.0–0.125, nên thêm người trực hay đổi kiểm mẫu chỉ làm tăng chi phí mà không giảm tác hại. Phần `business` do vai Sản phẩm và kinh doanh ghi.
 
 ---
 
