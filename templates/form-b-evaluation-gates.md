@@ -250,12 +250,13 @@ Bốn lăng kính (bắt buộc đủ cả bốn; dự án AI hay chết ở ba 
 | **Con người và vận hành** | Ai duyệt, mấy người, mỗi giờ được mấy ca? Lượng việc tăng gấp ba thì sao? Nhân viên có tin trợ lý không? |
 | **Pháp lý** | Dữ liệu cá nhân của ai rời hệ thống? Bên thứ ba nào bị ghi lỗi, bị trừ tiền mà không được hỏi? |
 
-| Lý do thất bại (viết ở thì quá khứ)                                                                                                 | Lăng kính             | Kiểm được hôm nay? (trace / data / config nào)                                                                                                                                                                                                                | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register                                                                                                                                                    |
-|-------------------------------------------------------------------------------------------------------------------------------------|-----------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| Trợ lý đã tin số ngày trễ trong ticket (5 ngày) thay cho tracking có thẩm quyền (2 ngày), rồi hoàn sai 20.000đ và ghi lỗi hãng oan. | Kỹ thuật              | Đã thấy: trace T-002@55, sự kiện 03 model_override (DB 2, ticket 5), sự kiện 06 issue_refund 20.000đ và 07 file_carrier_fault. Report R-base-before-20261119-172409-b45eeb: hoàn sai 20.000đ, lỗi hãng oan 1; cả hai ngưỡng bắt buộc đều [CHƯA].              | Đánh dấu chọn làm cổng. TV1 xem xét dùng dữ liệu tracking/nguồn sự thật thay cho con số tự khai trong ticket trước khi hoàn tiền hoặc ghi lỗi hãng.                                                                    |
-| Một số ticket ở phân khúc/kho có chi phí xử lý cao đã làm pilot kém hiệu quả kinh doanh.                                            | Kinh doanh            | Tín hiệu cần xem: report base cho ROI tổng thể 1,34 và chi phí 4.203đ/ticket, đều đạt ngưỡng đã ký. Nhưng nhóm kho ? có 5 ticket, chi phí 10.359đ/ticket, cao hơn làm tay 10.000đ/ticket. Chưa rõ nhóm ? là kho nào; không nên khái quát thành toàn pilot lỗ. | Đánh dấu chọn để TV3 xem xét cổng config, ví dụ giới hạn phạm vi hoặc ngân sách theo căn cứ phù hợp. Trước khi chốt, cần xác định phân khúc ? và đối chiếu với ops_limits/`ops_facts`; không tự đặt số mới.            |
-| Ticket đơn giản đã bị chuyển cho người duyệt quá nhiều, khiến nhân viên quá tải và khách chờ lâu.                                   | Con người và vận hành | Chưa thấy quá tải trong base: report ghi 5 ca/ngày vào hàng chờ, 1 người duyệt được 6 ca/giờ, chờ lâu nhất 0 phút, 0 ca ùn; escalation rate 0,2273. Đây là tín hiệu để theo dõi, chưa chứng minh hàng đợi đã quá tải.                                         | Risk register / theo dõi. Chưa nên khẳng định cần cổng chặn chuyển duyệt chỉ từ các số này. Có thể nêu điều kiện cần dừng/thu hẹp nếu hàng chờ vượt SLA 60 phút.                                                       |
-| Trợ lý đã làm lộ số giấy tờ tùy thân của khách cho bên thứ ba.                                                                      | Pháp lý               | 	Chưa thấy trong base: report ghi pii_leaks = 0. Trace T-002@55 gửi hãng quận và ghi chú ticket, không có số giấy tờ trong payload.                                                                                                                           | Risk register hoặc cổng phòng ngừa nếu nhóm xác định trường PII cần chặn. Không ghi đây là sự cố đã xảy ra trong base. Kiểm tra các trường và luồng gửi hãng; config pháp lý hiện là nơi đặt danh sách trường bị chặn. |
+| Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được hôm nay? (trace / data / config nào) | Thành cổng phòng ngừa nào (code hay config) / hay vào risk register |
+|---|---|---|---|
+| | Kỹ thuật | | |
+| Sau ba tháng pilot, trợ lý vẫn không gây lỗi safety nhưng quá nhiều ticket phải chuyển người duyệt; chi phí thực tế vượt mức làm tay và ROI xuống dưới ngưỡng đã ký nên pilot không còn có lợi về kinh tế. | Kinh doanh | Kiểm `data/world.json` → `ops_facts.manual_cost_per_ticket_vnd = 10000`, `review_cost_per_ticket_vnd = 10000`, `reviewer_standby_fee_vnd = 30000`; đối chiếu report `lab10.eval`/`lab10.grade` về chi phí mỗi ticket, ROI và tỉ lệ chuyển người với `config/acceptance_criteria.json` (`cost_per_ticket_vnd_max = 7500`, `roi_min = 0.35`, `escalation_rate_max = 0.35`). | Đặt `business.cost_budget_per_ticket_vnd = 7500` và `business.roi_min = 0.35`; nếu chi phí vượt 7500, ROI dưới 0.35 hoặc escalation vượt 0.35 thì Thu hẹp pilot theo decision rule đã ký, giảm scope/lưu lượng và chuyển ca ngoài scope cho người duyệt; không nới safety threshold để cứu business metric. |
+| | Con người và vận hành | | |
+| | Pháp lý | | |
+| | | | |
 
 ---
 
@@ -308,10 +309,10 @@ Mỗi con số kèm một câu lý do, lấy từ `data/world.json` → `ops_lim
 
 | Khoá | Giá trị bàn đặt | Lý do (một câu, có số) |
 |---|---|---|
-| `business.daily_refund_cap_vnd` | | |
-| `business.cost_budget_per_ticket_vnd` | | |
-| `business.pilot_scope` (all / warehouse / percent) | | |
-| `business.roi_min` | | |
+| `business.daily_refund_cap_vnd` | `2000000` | Bằng `data/world.json` → `ops_limits.daily_auto_refund_budget_vnd = 2000000`, là ngân sách Finance cho tổng hoàn tự động trong ngày. |
+| `business.cost_budget_per_ticket_vnd` | `7500` | Bằng acceptance criteria đã ký và thấp hơn `data/world.json` → `ops_facts.manual_cost_per_ticket_vnd = 10000`, nên yêu cầu hệ thống tiết kiệm thực so với làm tay. |
+| `business.pilot_scope` (all / warehouse / percent) | `{"mode": "all", "warehouses": [], "percent": 100}` | Giữ toàn bộ scope ban đầu vì chưa có prepared evaluation để chỉ ra warehouse cần loại bỏ; nếu gate business/operations vi phạm thì thu hẹp theo decision rule/runbook thay vì tự loại kho trước bằng chứng. |
+| `business.roi_min` | `0.35` | Bằng `business_ops.roi_min = 0.35` trong acceptance criteria đã ký; ROI thấp hơn mức này không đạt business gate và phải Thu hẹp pilot. |
 
 ### B7.5 · Câu 2.10 · Cổng con người, vận hành, pháp lý + Runbook phần 1–3
 
