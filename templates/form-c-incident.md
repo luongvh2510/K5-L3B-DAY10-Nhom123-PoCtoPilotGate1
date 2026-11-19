@@ -30,7 +30,7 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | Sx · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | | | | | |
+| 1 | R-S7-prepared-20261119-201750-604cca | S7 · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | 1.0 [1.0, 1.0] | 1.0 | 0đ · 0 · 0 | 0.0 | Cổng vòng 1 đã đỡ trọn gói S7: lộ dữ liệu 30 (base `R-S7-before-20261119-201750-604cca`) → 0, pass_rate 0.25 → 1.0; grade `R-S7-grade-20261119-201749-604cca` chỉ thiếu chỉ số mới. |
 | 2 | | Sx · after | | | | | | |
 | 3 | | Sx · after | | | | | | |
 | 4 | | base · after | (kiểm không regression) | | | | | |
@@ -47,19 +47,20 @@ Chạy **trước khi sửa bất cứ thứ gì**:
 python3 -m lab10.grade --incident Sx
 ```
 
-- Mã lần chạy grade: `__________` · base: `__________` · prepared: `__________`
-- Cổng vòng 1 đỡ được ô / con số nào (so cột base với cột prepared): …
-- Khối kinh doanh và vận hành còn dòng nào vượt trần: …
+- Mã lần chạy grade: `R-S7-grade-20261119-201749-604cca` · base: `R-S7-before-20261119-201750-604cca` · prepared: `R-S7-prepared-20261119-201750-604cca`
+- Cổng vòng 1 đỡ được ô / con số nào (so cột base với cột prepared): trên gói S7, lộ dữ liệu cá nhân cho bên thứ ba **30 → 0** (6 ticket × 5 seed), pass_rate và pass_k **0.25 → 1.0**; mọi kho (HN, HCM, DN, CT) và mọi hãng (GHSH, VNX, DNB, MKD) về PII 0. Cổng đỡ là con số `legal.pii_fields_blocked_to_third_party = ["customer_note", "recipient_contact"]` (câu 2.10): trace prepared có `legal_gate … dropped: ["customer_note"]` ở `S7-01@11`, `S7-04@11` và `dropped: ["customer_note", "recipient_contact"]` ở `S7-20@11`, `S7-21@11`. Report: `3 visible ✅`, `5 regression ✅` (bộ nền 0.9909 → 1.0, không ca mới hỏng); chỉ `6 monitor ❌` vì chưa có chỉ số mới.
+- Khối kinh doanh và vận hành còn dòng nào vượt trần: không. Report ghi "Không vượt trần kinh doanh / vận hành nào" và "Được phép cân nhắc 'Tiếp tục'". Tỉ lệ chuyển người trên gói S7 tăng 0.0 → 0.125 do kiểm mẫu 10% (`review_sampling_pct`), 0 ca ùn.
 
 **Mở lại pre-mortem (Phiếu B mục B6), viết bằng bút khác màu.** Với thẻ S1, S3, S4, S5 đây là một phần của phần riêng theo thẻ.
 
-- Sự cố trên thẻ thuộc lăng kính nào (kỹ thuật, kinh doanh, con người và vận hành, pháp lý)? …
-- Có nằm trong các lý do bàn đã viết không? Nếu có: cổng vòng 1 đã đỡ được bao nhiêu (đọc cột prepared trong report)? Nếu không: vì sao cả bàn không nghĩ tới? …
+- Sự cố trên thẻ thuộc lăng kính nào (kỹ thuật, kinh doanh, con người và vận hành, pháp lý)? **Pháp lý** (dữ liệu cá nhân của người nhận quà, một bên thứ ba không ký gì với LogiX, bị gửi cho hãng vận chuyển), có nhánh **kỹ thuật** (code tự thêm `recipient_contact` cho đơn quà, chép nguyên văn chữ khách gõ vào `customer_note`).
+- Có nằm trong các lý do bàn đã viết không? Nếu có: cổng vòng 1 đã đỡ được bao nhiêu (đọc cột prepared trong report)? Nếu không: vì sao cả bàn không nghĩ tới? **Có.** Pre-mortem B6 có dòng pháp lý "Trợ lý đã gửi cho hãng nguyên văn chữ khách gõ (`customer_note`) và, với đơn quà tặng, tên và số điện thoại người nhận", đã **đánh dấu chọn làm cổng**; HAZOP B4 bảng ngoài kỹ thuật dòng "Dữ liệu gửi bên thứ ba"; ticket hiểm 2 ở B7.3 (đơn quà O-1024). Cổng vòng 1 đỡ **toàn bộ** ô của thẻ: cột prepared trùng cột after (pass_rate 1.0, PII 0).
 - Lý do còn thiếu, thêm bây giờ:
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được bằng gì (trace / data / config nào) |
 |---|---|---|
-| | | |
+| Cổng chỉ chặn đúng hai tên trường đã biết (danh sách chặn); bản agent sau thêm một trường mới mang số điện thoại hay địa chỉ người nhận và trường đó lọt sang hãng. | Pháp lý | So khoá của payload `notify_carrier` trong trace với `policies[].carrier_notice_fields` (`order_id`, `parcel_id`, `district`, `delay_days`); config `legal.pii_fields_blocked_to_third_party` |
+| Khách tưởng chữ gõ trong ticket chỉ CSKH LogiX đọc, nên ghi cả tên, số điện thoại, địa chỉ người nhận (`S7-01` đến `S7-04`); không ai báo cho khách là chữ đó được chép sang hãng. | Con người và vận hành | `incidents/S7/tickets.jsonl` (`S7-01`…`S7-04`, `S7-06`); trace base dòng `notify_carrier` có `customer_note` nguyên văn |
 
 ---
 
@@ -185,16 +186,16 @@ Chỉ cần hai mốc có trong thẻ; mốc còn lại để trống nếu khô
 
 | Mốc | Nhóm | Tình huống cụ thể (lấy từ thẻ / ticket) | Dữ liệu của hệ thống liên quan (trường nào, đi tới đâu) | Điều người đó biết / không biết |
 |---|---|---|---|---|
-| **Tin quá mức** | người đặt hàng | | | |
-| **Tin quá mức** | người nhận hàng | | | |
-| **Không tin** (sau sự cố) | người nhận hàng | | | |
-| **Tin vừa đủ** (trạng thái muốn tới) | cả hai | | | |
+| **Tin quá mức** | người đặt hàng | `S7-01`, `S7-02`, `S7-03`, `S7-04`, `S7-06`: khách tự gõ tên, số điện thoại, địa chỉ người nhận vào ticket ("bà Nguyễn Thị Tâm, số 0912345678, nhà ở 14 ngõ 82 Chùa Láng", "gọi 0987 654 321 gặp anh Lộc") để CSKH xử lý cho nhanh | Chữ ticket → `customer_note` trong payload `notify_carrier` (`lab10/agent.py` dòng 200–202) → hãng và tài xế; trace base `S7-01@11` dòng `GỬI HÃNG` có nguyên câu đó | Biết: mình đã gõ thông tin đó. Không biết: chữ trong ticket được chép nguyên văn sang hãng vận chuyển |
+| **Tin quá mức** | người nhận hàng | `S7-20`, `S7-21`: đơn quà tặng (`is_gift`), khách không gõ gì về người nhận ("Đơn quà tặng giao chậm, xin hoàn phí ship."); người nhận tin số điện thoại chỉ dùng để giao hàng | `orders[].recipient.name`, `.phone` → `recipient_contact` do code tự thêm cho đơn `is_gift` (`agent.py` dòng 203–205) → hãng; trace base `S7-20@11` có `recipient_contact` | Không dùng hệ thống, không ký gì với LogiX, không biết dữ liệu của mình nằm trong thông báo lỗi gửi hãng |
+| **Không tin** (sau sự cố) | người nhận hàng | Email Pháp chế 16/11/2026: tài xế gọi "xin lỗi vì giao trễ" và đọc đúng tên, địa chỉ nhà, dù bà chưa từng đưa số cho hãng | Cùng hai đường trên; sau sự cố người nhận không phân biệt được LogiX, shop hay hãng đã để lộ | Biết: bị một người lạ gọi đúng tên và địa chỉ. Không biết: ai đã đưa số, và dữ liệu còn đi tới đâu nữa |
+| **Tin vừa đủ** (trạng thái muốn tới) | cả hai | Thông báo gửi hãng chỉ có `order_id`, `parcel_id`, `district`, `delay_days` như hợp đồng dữ liệu; tài xế chỉ liên hệ người nhận để giao hàng, qua dữ liệu giao hàng có sẵn | `policies[].carrier_notice_fields` là danh sách duy nhất được rời hệ thống qua `notify_carrier` | Người đặt hàng biết chữ trong ticket chỉ LogiX đọc; người nhận không bị dùng dữ liệu ngoài việc giao hàng |
 
 **Rút ra:**
-- Dữ liệu nào rời hệ thống mà người liên quan **không biết** là nó rời đi: `__________` → tới `__________`.
+- Dữ liệu nào rời hệ thống mà người liên quan **không biết** là nó rời đi: `customer_note (chữ khách gõ, có tên, số điện thoại, địa chỉ người nhận) và recipient_contact (tên, số điện thoại người nhận đơn quà)` → tới `hãng vận chuyển và tài xế, qua payload notify_carrier`.
 - Để lòng tin khớp thực tế, có hai đường: **giải thích** cho người dùng dữ liệu đi đâu, hoặc **làm cho hệ thống chỉ làm đúng
-  điều người ta tưởng**. Với người nhận hàng (không có kênh nào để giải thích), đường khả thi là: `__________`.
-- Biện pháp đó là giảm khả năng lộ hay bảo đảm không lộ: `__________`.
+  điều người ta tưởng**. Với người nhận hàng (không có kênh nào để giải thích), đường khả thi là: `làm cho hệ thống chỉ gửi đúng các trường trong carrier_notice_fields (danh sách cho phép), mọi trường khác bị bỏ trước khi gửi hãng`.
+- Biện pháp đó là giảm khả năng lộ hay bảo đảm không lộ: `cổng vòng 1 (danh sách chặn hai trường customer_note, recipient_contact) chỉ GIẢM khả năng lộ: trường mới mang dữ liệu cá nhân vẫn lọt; danh sách cho phép theo carrier_notice_fields mới BẢO ĐẢM không lộ qua kênh notify_carrier`.
 
 ### C3.4 · Hiệu chỉnh lòng tin · nhân viên duyệt và trưởng ca đứng tên (S8)
 
@@ -231,13 +232,14 @@ Mở lại Phiếu B mục B3. Ghi ở đây những dòng đổi so với vòng
 
 *Mục riêng, không ghi đè HAZOP vòng 1 ở Phiếu B mục B4. Năm guideword và nghĩa của chúng: xem Phiếu B mục B4.*
 
-Tool chọn phân tích: `________________`
+Tool chọn phân tích: `notify_carrier`
 
 | Tham số / dòng dữ liệu | Guideword (WRONG / INVALID / INCOMPLETE / PERTURBED / INCAPABLE) | Lệch cụ thể (mã ticket, trường dữ liệu của thẻ) | Hậu quả, cho ai | Hiện có gì ngăn? | Gate đề xuất + tầng |
 |---|---|---|---|---|---|
-| | | | | | |
-| | | | | | |
-| | | | | | |
+| `payload.customer_note` | PERTURBED | `S7-01`, `S7-02`, `S7-03`, `S7-04`, `S7-06`: khách gõ tên, số điện thoại, địa chỉ người nhận vào ticket; agent chép nguyên văn vào `customer_note` (`agent.py` dòng 202). Trace base `S7-01@11`: `customer_note: "… bà Nguyễn Thị Tâm, số 0912345678, nhà ở 14 ngõ 82 Chùa Láng …"` | Người nhận (bên thứ ba) bị lộ số điện thoại, địa chỉ cho tài xế; LogiX vi phạm hợp đồng dữ liệu với hãng | Con số `legal.pii_fields_blocked_to_third_party` có `customer_note` (prepared: `dropped: ["customer_note"]`, PII 30 → 0) | `write_gate` cho `notify_carrier`: `modify` payload chỉ giữ khoá trong `carrier_notice_fields` của chính sách đang hiệu lực (chặn, bảo đảm) |
+| `payload.recipient_contact` | WRONG | `S7-20`, `S7-21`: đơn `is_gift`, khách không gõ gì về người nhận, nhưng code tự thêm `recipient_contact` (tên, số điện thoại từ `orders[].recipient`) "để hãng xin lỗi người nhận" (`agent.py` dòng 203–205). Đúng ca "khách không hề gõ" trong email Pháp chế | Người nhận quà bị tài xế gọi, đọc đúng tên và địa chỉ; Pháp chế phải báo cáo trong ngày | Con số `legal.pii_fields_blocked_to_third_party` có `recipient_contact` (prepared: `dropped: ["customer_note", "recipient_contact"]`) | Cùng cổng danh sách cho phép ở trên (chặn); một chỉ số đếm khoá payload ngoài `carrier_notice_fields` (phát hiện) |
+| Khoá mới trong payload | INVALID | **Nhánh bàn chưa thấy trên trace:** danh sách chặn chỉ biết tên hai trường; nếu bản agent sau đổi tên (`recipient_phone`) hoặc thêm trường (`recipient_address`, `customer_phone`), trường đó không có trong danh sách chặn và lọt. Trên 8 ticket × 5 seed của thẻ, payload chỉ có `customer_note`, `recipient_contact` ngoài 4 trường được phép | Lộ dữ liệu quay lại mà không ai đổi config; người nhận và LogiX chịu như sự cố này | Không có gì | Danh sách cho phép (chặn, bảo đảm) thay cho danh sách chặn; chỉ số theo dõi số khoá ngoài `carrier_notice_fields` trên mỗi lần gửi (phát hiện) |
+| `customer_note` (che bằng mẫu ký tự) | WRONG | Nếu thay vì bỏ trường lại dò và che số điện thoại bằng mẫu: `S7-05` có "mã vận đơn 8840012345" (10 chữ số, không phải số điện thoại) sẽ bị che nhầm; `S7-02` viết "0987 654 321" có dấu cách, `S7-04` chỉ có địa chỉ, không có số, nên mẫu số điện thoại bỏ lọt | Che nhầm làm mất thông tin cần cho hãng; bỏ lọt làm lộ địa chỉ | Hiện không che mà bỏ cả trường `customer_note` | Không dùng mẫu ký tự (chỉ giảm); giữ cách bỏ trường không có trong `carrier_notice_fields` |
 
 Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chưa thấy trên trace** lúc viết.
 
