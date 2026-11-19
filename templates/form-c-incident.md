@@ -251,9 +251,9 @@ Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chư
 
 ### Câu 3.2 · Một specification mà nếu bị vi phạm thì gây ra tác hại trên thẻ
 
-Kiểm được bằng code hoặc bằng một con số trong report: …
+Kiểm được bằng code hoặc bằng một con số trong report: Mỗi payload rời LogiX qua `notify_carrier` chỉ được chứa các khoá trong `policies[].carrier_notice_fields` của policy đang hiệu lực (`order_id`, `parcel_id`, `district`, `delay_days`); nếu có `customer_note`, `recipient_contact` hoặc bất kỳ khoá nào khác ngoài allowlist thì specification bị vi phạm và có thể làm lộ dữ liệu người nhận.
 
-Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
+Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): Đọc dòng `GỬI HÃNG` trong trace/report của từng lần gọi `notify_carrier`, lấy tập khoá payload và đối chiếu với `policies[].carrier_notice_fields` được chọn theo ngày hiệu lực; `write_gate(ctx, action)` là điểm móc trước lệnh ghi nhưng `lab10/guards.py` hiện chưa có nhánh `notify_carrier`, nên kiểm tra này hiện là kiểm chứng output boundary, chưa phải bằng chứng rằng guard đã chặn được vi phạm.
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
@@ -322,6 +322,8 @@ python3 -m lab10.grade --incident Sx
 | [3] | Cổng vòng 1 là **danh sách chặn theo tên trường**: chỉ biết `customer_note`, `recipient_contact`; trường đổi tên hoặc trường mới mang số điện thoại, địa chỉ người nhận sẽ lọt (C4 dòng "Khoá mới trong payload", nhánh chưa thấy trên trace) | `config/operating_gates.json` → `legal.pii_fields_blocked_to_third_party` thêm `recipient`, `recipient_name`, `recipient_phone`, `recipient_address`, `customer_phone`, `customer_address`, `phone`, `street` (giữ hai trường cũ). Giữ `carrier_fault_requires_recorded_cause = true` | Chặn (cổng pháp lý của host, bỏ trường trước khi gửi hãng) | **GIẢM khả năng.** Vẫn chặn theo tên: một tên trường khác hẳn vẫn lọt, và chữ khách gõ vẫn có thể mang dữ liệu nếu ở trường được phép. Đây là lớp phòng thủ thứ hai; **NGĂN** cần cổng danh sách cho phép theo `carrier_notice_fields` trong `write_gate` (phần code của Kỹ sư cổng) | `R-S7-after-20261119-203925-5aede3` (S7: PII 0, pass 1.0); `R-base-after-20261119-203926-5aede3` (bộ nền: pass 1.0, không ca mới hỏng) |
 
 Phần `operations` **không đổi**: sự cố S7 là dữ liệu cá nhân gửi bên thứ ba, không phải người duyệt hay hàng chờ; report S7 prepared và after đều 0 ca ùn, chờ lâu nhất 0 phút, tỉ lệ chuyển người 0.0–0.125, nên thêm người trực hay đổi kiểm mẫu chỉ làm tăng chi phí mà không giảm tác hại. Phần `business` do vai Sản phẩm và kinh doanh ghi.
+
+**Đánh giá Sản phẩm & Kinh doanh:** Không thay đổi business gates ở vòng S7 vì chưa có bằng chứng các ngưỡng business là nguyên nhân của sự cố; giữ nguyên `business.daily_refund_cap_vnd = 2000000`, `business.cost_budget_per_ticket_vnd = 1500`, `business.pilot_scope = {"mode": "all", "warehouses": [], "percent": 100}` và `business.roi_min = 0.35` trong `config/operating_gates.json`. Sự cố nằm ở ranh giới dữ liệu gửi bên thứ ba qua `notify_carrier`, nên phải xử lý tại tầng privacy/legal/output boundary, không tự ý thu hẹp scope hoặc đổi ROI/cost chỉ để tạo một business fix.
 
 ---
 
