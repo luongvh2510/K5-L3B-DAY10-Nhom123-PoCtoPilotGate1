@@ -97,4 +97,25 @@ def write_gate(ctx, action):
         if any(action.get(k) != v for k, v in want.items()):
             return Verdict.modify("ghi lỗi theo đúng kiện trễ và số ngày của tracking DB", **want)
 
+    # CỔNG 4 (vòng 2, thẻ S7; Phiếu C C5 câu 3.2, C6 nhánh [1] [2] [3], C10 dòng 1):
+    # danh sách CHO PHÉP thay cho danh sách chặn. Thông báo gửi hãng là dữ liệu rời khỏi LogiX tới bên thứ ba,
+    # nên chỉ giữ các khoá mà chính sách đang hiệu lực liệt kê trong carrier_notice_fields; mọi khoá khác bị bỏ,
+    # dù tên là gì. Giá trị district lấy lại từ đơn trong DB để trường được phép không chở chữ khách gõ.
+    # Dùng modify (bỏ khoá thừa rồi vẫn gửi), không escalate, để không đẩy ca hợp lệ sang người duyệt (C10 dòng 2).
+    if tool == "notify_carrier":
+        policy = H.effective_policy(ctx.tools.lookup_policies(), ctx.as_of)
+        allowed = list((policy or {}).get("carrier_notice_fields") or [])
+        if not allowed:
+            return Verdict.deny("không xác định được danh sách trường được phép gửi hãng: không gửi")
+        payload = action.get("payload") or {}
+        clean = {k: payload[k] for k in allowed if k in payload}
+        order = ctx.tools.lookup_order(action.get("order_id") or payload.get("order_id"))
+        if order is not None and "district" in allowed:
+            clean["district"] = (order.get("recipient") or {}).get("district")
+        if clean != payload:
+            ctx.log("carrier_notice_allowlist", dropped=sorted(set(payload) - set(allowed)),
+                    allowed=allowed, policy_id=(policy or {}).get("policy_id"))
+            return Verdict.modify("chỉ gửi hãng các trường trong carrier_notice_fields của chính sách đang hiệu lực",
+                                  payload=clean)
+
     return Verdict.allow()
