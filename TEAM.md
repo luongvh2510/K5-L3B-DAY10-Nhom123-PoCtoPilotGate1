@@ -88,7 +88,7 @@ Vòng 2 (thẻ S7)
 
 Commit: `a26f50a` (A3/câu 1.5), `aa8904f` (B6/câu 2.5), `d204277` (B7.2/câu 2.7), `0820f24` (C6/fault tree), `3790a3a` (hoàn thiện C6 và mã lần chạy trước sửa), `5e10a28` và `3d9cfea` (C8, `lab10/monitors.py` và hiệu chỉnh chỉ số), `4e923c4` (C9 và đối chiếu report). Email tác giả commit mang MSSV `2A202603787` dù trường tên tác giả Git ban đầu dùng tên/email dùng chung.
 
-Lần chạy được ghi ở C8: `R-S7-grade-20261119-214642-924806` (bản chạy của Lâm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 ghi report gom cuối: S7 after `R-S7-after-20261119-222420-088e47`, grade `R-S7-grade-20261119-222432-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
+Lần chạy được ghi ở C8: `R-S7-grade-20261119-232307-088e47` (lần tự kiểm tra cuối trên máy trưởng nhóm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 dùng cùng bộ report cuối: S7 after `R-S7-after-20261119-232307-088e47`, grade `R-S7-grade-20261119-232307-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
 
 Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, cụ thể là `monitors.py`, đồng thời giúp tra soát các kết quả chạy thử các gate. Có kiểm tra lại và nhận feedback từ đồng đội.
 
@@ -110,7 +110,7 @@ Vai Sản phẩm & Kinh doanh. Phụ trách Phiếu A (A1/Q1.1, A4/Q1.6, accepta
 ### Bằng chứng
 
 Commit: `ba16cf3` (B3, bản đồ dữ liệu và drift), `4db1b12` (pre-mortem kinh doanh, mục `business` trong `config/operating_gates.json`), `8b4bb52` (C5 câu 3.2, C7 phần business), `cd685d4` (C12 quyết định v2, ba dòng bắt buộc, `submission.json`). Tiêu chí do Trình điền được ký ở commit `649385a`, hash `09f2b195`.
-Mã lần chạy dùng trong C12: base `R-S7-before-20261119-221728-e8d69d`, prepared `R-S7-prepared-20261119-221728-e8d69d`, after `R-S7-after-20261119-221728-e8d69d`, tự kiểm tra `R-S7-grade-20261119-221728-e8d69d` (PASS-VISIBLE; test ẩn không khả dụng trên máy). Phiếu: B3, B6, B7.4; C5, C7, C12.
+Mã lần chạy dùng trong C12: base `R-S7-before-20261119-232307-088e47`, prepared `R-S7-prepared-20261119-232307-088e47`, after `R-S7-after-20261119-232307-088e47`, tự kiểm tra `R-S7-grade-20261119-232307-088e47` (PASS-VISIBLE; test ẩn không khả dụng trên máy). Phiếu: B3, B6, B7.4; C5, C7, C12.
 
 (Trình bổ sung: phần việc nào đã dùng trợ lý AI, và dùng công cụ nào.)
 
