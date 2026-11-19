@@ -434,7 +434,7 @@ Ghi các dòng đổi sau sự cố. Mỗi dòng vẫn phải có một PIC có 
 | 4 · Quyền hạn | Xong | `write_gate` giờ có cổng trước cả 3 lệnh ghi ra ngoài: `issue_refund`, `file_carrier_fault`, `notify_carrier` (cổng 4, `Verdict.modify`); `send_reply` gửi cho chính khách nên chưa cần cổng; 4 công tắc trong `config/switches.json` vẫn `on`, NV-TUNG giữ | Hồ Anh Tú |
 | 7 · Vận hành | Xong | `lab10/monitors.py` có 2 chỉ số mới `sensitive_carrier_field_rate`, `unauthorized_carrier_field_rate` (C8; tự kiểm tra monitor ✅, before 0.509 nền · 0.875 thẻ, after 0.0 · 0.0); Runbook 2 thêm 2 dòng tín hiệu (Runbook 4 dưới đây); `operations` không đổi (0 ca ùn, chờ lâu nhất 0 phút) | Võ Hồng Lương |
 | 8 · Con người, pháp lý | Xong | Người nhận quà là bên thứ ba có trong checklist; `legal.pii_fields_blocked_to_third_party` từ 2 lên 10 tên trường (lớp 2, GIẢM) và cổng 4 danh sách cho phép (NGĂN) (C7); PIC rủi ro lộ dữ liệu người nhận là NV-TUNG (C10 dòng 1); `pii_leaks` S7 30 → 0 | Võ Hồng Lương |
-| 9 · Quyết định | Chưa | Quyết định v2 ở C12 chờ vai Sản phẩm và kinh doanh viết, dựa trên `R-S7-grade-20261119-232307-088e47` (mọi ngưỡng đã ký đạt, không vượt trần) | Triệu Hải Đăng Trình |
+| 9 · Quyết định | Xong | Quyết định v2 **Tiếp tục** ở C12, khớp dòng "Tiếp tục" của `decision_rule` đã ký; tự kiểm tra `R-S7-grade-20261119-232307-088e47` PASS-VISIBLE, mọi ngưỡng đã ký đạt, không vượt trần; ba dòng bắt buộc đã chép sang `submission/submission.json` | Triệu Hải Đăng Trình |
 
 ### Runbook 4 · Sau sự cố trên thẻ (vòng 2)
 
@@ -473,14 +473,14 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 | Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Khối "theo kho và hãng" trong output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | Trên gói S7: kho HN chi phí cao nhất `2102đ/ticket`, dưới làm tay `10000đ`; các hãng DNB/GHSH/MKD/VNX đều pass `1.0`, safety `0`. Trên bộ nền: dòng `kho ?` (ticket không xác định được kho) tốn `10359đ/ticket`, cao hơn làm tay `10000đ`, là phân khúc xấu nhất nhưng tổng số kho đắt hơn làm tay vẫn `0` và mọi ngưỡng đã ký đạt, nên không đổi quyết định; ghi vào theo dõi pilot. |
 | Quyết định (khoanh một) | **Tiếp tục** · ~~Thu hẹp~~ · ~~Cải tiến thêm~~ · ~~Dừng~~ |
 | Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-S7-grade-20261119-232307-088e47`: S7 after pass_rate `1.0 [1.0, 1.0]`, pass_k `1.0`, wrongful_refund `0`, wrongful_carrier_faults `0`, pii_leaks `0`; tất cả required criteria đạt. |
-| Bằng chứng 2 | Cổng allowlist vòng 2 đưa `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate` về `0.0` ở after; S7 visible pass `1.0`, không ticket hỏng, không regression. |
+| Bằng chứng 2 | `R-S7-grade-20261119-232307-088e47`, mục monitor: hai chỉ số mới sáng ở mốc base (`0.509` bộ nền · `0.875` S7) và bằng `0.0` ở cả prepared lẫn after. Số đo được không đổi giữa prepared và after, vì cổng pháp lý vòng 1 đã đưa PII S7 từ `30` về `0`; vòng 2 đổi cách bảo vệ từ GIẢM (chặn theo tên trường) sang NGĂN (cổng 4 chỉ cho đi khoá trong `carrier_notice_fields`, trace `S7-20@11` bước 07). S7 pass `1.0`, không ticket hỏng, không regression. |
 | Bằng chứng 3 | Bộ nền after pass_rate `1.0 [1.0, 1.0]`, pass_k `1.0`, cost `4456đ/ticket`, ROI `1.24`, queue stuck `0`; report ghi `continue_allowed = true` và “Được phép cân nhắc Tiếp tục”. |
 | Khớp dòng nào trong `decision_rule` đã ký? | “Tiếp tục”: tất cả required criteria đạt, safety sạch, không vượt quyền/output boundary và các business/operations gates trong ngưỡng đã ký. |
-| Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | |
-| Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | |
-| Nếu Dừng: bài học ghi lại | |
-| Ngày quyết định lại (trừ khi Dừng) | |
-| PIC ký | |
+| Nếu Thu hẹp: cắt kho nào / còn bao nhiêu phần trăm / mấy người trực, và ticket bị cắt đi đâu | Không áp dụng (quyết định là Tiếp tục; độ phủ pilot giữ 1.0, 1 người trực) |
+| Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | Không áp dụng |
+| Nếu Dừng: bài học ghi lại | Không áp dụng |
+| Ngày quyết định lại (trừ khi Dừng) | 26/11/2026, sau tuần đầu chạy pilot thật: đọc lại `pii_leaks`, `unauthorized_carrier_field_rate`, `sensitive_carrier_field_rate` trên payload thật và số phản ánh của người nhận; quyết định sớm hơn nếu bất kỳ chỉ số nào > 0 (điều kiện dừng thứ nhất) |
+| PIC ký | NV-TUNG (Lê Thanh Tùng, `operations.pic`); cả bàn đồng ý, người ghi: Triệu Hải Đăng Trình (vai Sản phẩm và kinh doanh) |
 
 **Chỉ ở v2**
 - Quyết định đổi hay giữ so với v1? Vì con số nào: Giữ **Tiếp tục** như v1; after S7 đạt pass_rate/pass_k `1.0`, wrongful refund/carrier fault/PII đều `0`, cost `5005đ/ticket`, ROI `1.0`, queue stuck `0`, và không vượt trần.
@@ -490,6 +490,6 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 - Một thứ bộ thử hôm nay chưa đo, và nó ảnh hưởng quyết định ra sao: Máy chỉ có mock data và không có hidden tests/traffic production; chưa đo consent và phản ánh thực tế của recipient hoặc drift field mới ngoài bộ S7, nên cần telemetry hai monitor và PII thực tế trước Gate 2.
 
 **Ba dòng bắt buộc** (chép nguyên ba câu này sang `submission/submission.json`, mục `three_lines`)
-1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: Người gửi ticket chỉ mô tả sự cố của chính mình và không đưa dữ liệu cá nhân của người khác; nhưng đơn quà có người đặt và người nhận khác nhau, người nhận không ký gì với LogiX và khách có thể gõ tên, số điện thoại hoặc địa chỉ của người nhận.
-2. Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: Cổng allowlist trong `write_gate` thực sự NGĂN class lỗi field ngoài `policies[].carrier_notice_fields` bằng cách loại mọi khoá thừa trước `notify_carrier`; nó không tự giải quyết mọi vấn đề privacy, consent hoặc dữ liệu sai ngay trong các field được phép.
-3. Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: Ghi và theo dõi trên traffic thật `unauthorized_carrier_field_rate`, `sensitive_carrier_field_rate` và `pii_leaks` theo từng payload `notify_carrier`, đồng thời đối chiếu phản ánh/consent của recipient và business/ops metrics trước Gate 2.
+1. Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: Đơn quà có người đặt và người nhận khác nhau, nhưng thiết kế ngầm tin người gửi ticket chỉ gõ thông tin của chính mình: ở mốc base của thẻ S7, chữ khách gõ (`customer_note`) và liên hệ người nhận (`recipient_contact`) đã gây 30 lần lộ dữ liệu cá nhân cho hãng trong 40 lần chạy (`R-S7-before-20261119-232307-088e47`), trong khi người nhận chưa từng đồng ý chia sẻ.
+2. Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: NGĂN với mọi khoá ngoài `carrier_notice_fields`: cổng 4 trong `write_gate` chỉ cho đi `order_id`, `parcel_id`, `district`, `delay_days` (`district` lấy từ DB), nên `unauthorized_carrier_field_rate` 0.875 → 0.0 và `pii_leaks` 30 → 0 (`R-S7-grade-20261119-232307-088e47`); cổng chặn theo tên trường của vòng 1 chỉ GIẢM, và cổng không chứng minh được sự đồng ý của người nhận.
+3. Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: Đo trên từng payload `notify_carrier` thật: `unauthorized_carrier_field_rate` và `sensitive_carrier_field_rate` mỗi ca, ngưỡng đỏ > 0 thì dừng pilot trong 15 phút; đồng thời đếm số phản ánh của người nhận không phải khách hàng trong 7 ngày đầu (ngưỡng đỏ 1), vì bộ mock không đo được sự đồng ý.

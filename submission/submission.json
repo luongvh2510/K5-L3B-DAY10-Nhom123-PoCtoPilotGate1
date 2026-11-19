@@ -1,12 +1,17 @@
 {
   "team": "K5-L3B-DAY10-Nhom123-PoCtoPilotGate1",
-  "members": ["VoHongLuong-2A202603839", "HoAnhTu-2A202603811", "LeDucTrucLam-2A202603787", "TrieuHaiDangTrinh-2A202603874"],
+  "members": [
+    "VoHongLuong-2A202603839",
+    "HoAnhTu-2A202603811",
+    "LeDucTrucLam-2A202603787",
+    "TrieuHaiDangTrinh-2A202603874"
+  ],
   "incident": "S7",
   "decision_v1": "Tiếp tục",
   "decision_v2": "Tiếp tục",
   "three_lines": {
-    "environment_assumption": "Một giả định về môi trường mà thiết kế của đội đang dựa vào, có thể sai ngoài thực tế: Người gửi ticket chỉ mô tả sự cố của chính mình và không đưa dữ liệu cá nhân của người khác; nhưng đơn quà có người đặt và người nhận khác nhau, người nhận không ký gì với LogiX và khách có thể gõ tên, số điện thoại hoặc địa chỉ của người nhận.",
-    "reduce_or_prevent": "Gate của đội chỉ GIẢM khả năng hay thực sự NGĂN được tác hại? Vì sao: Cổng allowlist trong `write_gate` thực sự NGĂN class lỗi field ngoài `policies[].carrier_notice_fields` bằng cách loại mọi khoá thừa trước `notify_carrier`; nó không tự giải quyết mọi vấn đề privacy, consent hoặc dữ liệu sai ngay trong các field được phép.",
-    "measure_in_pilot": "Vì data là mock, cần đo lại gì trong pilot thật trước Bước đánh giá 2: Ghi và theo dõi trên traffic thật `unauthorized_carrier_field_rate`, `sensitive_carrier_field_rate` và `pii_leaks` theo từng payload `notify_carrier`, đồng thời đối chiếu phản ánh/consent của recipient và business/ops metrics trước Gate 2."
+    "environment_assumption": "Đơn quà có người đặt và người nhận khác nhau, nhưng thiết kế ngầm tin người gửi ticket chỉ gõ thông tin của chính mình: ở mốc base của thẻ S7, chữ khách gõ (`customer_note`) và liên hệ người nhận (`recipient_contact`) đã gây 30 lần lộ dữ liệu cá nhân cho hãng trong 40 lần chạy (`R-S7-before-20261119-232307-088e47`), trong khi người nhận chưa từng đồng ý chia sẻ.",
+    "reduce_or_prevent": "NGĂN với mọi khoá ngoài `carrier_notice_fields`: cổng 4 trong `write_gate` chỉ cho đi `order_id`, `parcel_id`, `district`, `delay_days` (`district` lấy từ DB), nên `unauthorized_carrier_field_rate` 0.875 → 0.0 và `pii_leaks` 30 → 0 (`R-S7-grade-20261119-232307-088e47`); cổng chặn theo tên trường của vòng 1 chỉ GIẢM, và cổng không chứng minh được sự đồng ý của người nhận.",
+    "measure_in_pilot": "Đo trên từng payload `notify_carrier` thật: `unauthorized_carrier_field_rate` và `sensitive_carrier_field_rate` mỗi ca, ngưỡng đỏ > 0 thì dừng pilot trong 15 phút; đồng thời đếm số phản ánh của người nhận không phải khách hàng trong 7 ngày đầu (ngưỡng đỏ 1), vì bộ mock không đo được sự đồng ý."
   }
 }

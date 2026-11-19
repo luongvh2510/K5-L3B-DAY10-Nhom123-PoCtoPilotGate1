@@ -93,7 +93,7 @@ Vòng 2 (thẻ S7)
 
 Commit: `a26f50a` (A3/câu 1.5), `aa8904f` (B6/câu 2.5), `d204277` (B7.2/câu 2.7), `0820f24` (C6/fault tree), `3790a3a` (hoàn thiện C6 và mã lần chạy trước sửa), `5e10a28` và `3d9cfea` (C8, `lab10/monitors.py` và hiệu chỉnh chỉ số), `4e923c4` (C9 và đối chiếu report). Email tác giả commit mang MSSV `2A202603787` dù trường tên tác giả Git ban đầu dùng tên/email dùng chung.
 
-Lần chạy được ghi ở C8: `R-S7-grade-20261119-232307-088e47` (lần tự kiểm tra cuối trên máy trưởng nhóm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 dùng cùng bộ report cuối: S7 after `R-S7-after-20261119-232307-088e47`, grade `R-S7-grade-20261119-232307-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
+Lần chạy được ghi ở C8: `R-S7-grade-20261119-232307-088e47` (lần tự kiểm tra cuối trên máy trưởng nhóm; cả hai chỉ số `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate` ở mốc base là 0.509091 trên bộ nền và 0.875 trên S7, ở prepared và after đều 0.0). C9 dùng cùng bộ report cuối: S7 after `R-S7-after-20261119-232307-088e47`, grade `R-S7-grade-20261119-232307-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
 
 Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, cụ thể là `monitors.py`, đồng thời giúp tra soát các kết quả chạy thử các gate. Có kiểm tra lại và nhận feedback từ đồng đội.
 
@@ -116,7 +116,7 @@ Vòng 1
 
 - Cài đặt môi trường, chạy `unittest` kiểm tra 13/13 test đạt (`OK`).
 - Câu 1.3: chọn bước `ghi lỗi hãng` (`file_carrier_fault`), thiết kế thước đo tỉ lệ gọi sai căn cứ trên tổng số lần gọi; dữ liệu từ `110` lần chạy (`22 ticket × 5 seed`) đối chiếu nhãn `faults`; quy định rõ xử lý ca không gọi và `missing_data` để hai người tính độc lập ra cùng số, kèm điểm mù (bỏ sót lỗi hãng và sai tracking DB gốc).
-- Câu 2.1: chạy `eval` mốc `base` (`R-base-before-20261119-173442-bde05c`) và `gate`; chỉ ra 2 chỉ số an toàn chưa đạt (`wrongful_refund_vnd = 20000`, `wrongful_carrier_faults = 1`), phân khúc kho `HCM` và hãng `VNX` xấu nhất về an toàn, phân khúc kho `?` tốn `10359đ/ticket > làm tay (10000đ)`; đề xuất cơ chế **kết hợp** (tự chặn với chỉ số an toàn, người duyệt đánh giá phân khúc để chọn quyết định).
+- Câu 2.1: chạy `eval` mốc `base` (`R-base-before-20261119-173442-bde05c` trên máy Tú; chạy lại trên máy gom bài `R-base-before-20261119-174640-bde05c`, cùng số) và `gate`; chỉ ra 2 chỉ số an toàn chưa đạt (`wrongful_refund_vnd = 20000`, `wrongful_carrier_faults = 1`), phân khúc kho `HCM` và hãng `VNX` xấu nhất về an toàn, phân khúc kho `?` tốn `10359đ/ticket > làm tay (10000đ)`; đề xuất cơ chế **kết hợp** (tự chặn với chỉ số an toàn, người duyệt đánh giá phân khúc để chọn quyết định).
 - Câu 2.2: dò `trace T-002@55`, bóc tách 2 lỗi chìm (hoàn tiền sai `20000đ` do `03 model_override` và phạt oan hãng `VNX` / tài xế `TX-VNX-03`), xác định nguồn từ Đầu vào và Thứ bậc hệ thống, đề xuất cổng kiểm soát theo tracking DB và tín hiệu theo dõi.
 - Câu 2.5 & 2.6: viết 3 lý do kỹ thuật từ `T-002@55` và `lab10/agent.py` cho pre-mortem; triển khai 3 cổng vòng 1 trong `lab10/guards.py`: `pre_guard` ghim `effective_policy`, `write_gate` nhánh `issue_refund` (chặn `fail_open`, đổi `payer`, và đối chiếu `entitlement_vnd` từ DB) và nhánh `file_carrier_fault` (kiểm tra `carrier_at_fault` và sửa đúng kiện/hãng/số ngày theo DB).
 
@@ -129,7 +129,7 @@ Vòng 2 (thẻ S7)
 ### Bằng chứng
 
 - Mã commit: `0a73cc0`, `73befa2`, `c1f2d33`, `7746ae4` (nhận thẻ S7), và các commit trên nhánh `hoanhtu-TV1` (Phiếu A mục A2, Phiếu B mục B0–B2, Phiếu C mục C2).
-- Mã lần chạy (`runs/`): `R-base-before-20261119-173442-bde05c` (base bộ nền), `R-S7-grade-20261119-201749-604cca` (grade prepared S7), `R-S7-before-20261119-201750-604cca`, `R-S7-prepared-20261119-201750-604cca`, `R-S7-grade-20261119-232307-088e47` (`PASS-VISIBLE` sau Cổng 4).
+- Mã lần chạy (`runs/`): `R-base-before-20261119-174640-bde05c` (base bộ nền, có trong nhật ký nộp; bản đầu trên máy Tú `R-base-before-20261119-173442-bde05c`), `R-S7-grade-20261119-201749-604cca` (grade prepared S7), `R-S7-before-20261119-201750-604cca`, `R-S7-prepared-20261119-201750-604cca`, `R-S7-grade-20261119-232307-088e47` (`PASS-VISIBLE` sau Cổng 4).
 - Dòng trong phiếu: Phiếu A mục A2 (câu 1.3); Phiếu B mục B0 dòng 1, B1, B2, B6 (kỹ thuật), B7.1; Phiếu C mục C0, C1, C2.
 
 - Có dùng trợ lý AI (Google AI Studio hỗ trợ phân tích bài toán/review logic và Codex hỗ trợ soạn/chạy lệnh trên repo); mọi output trace (`T-002@55`, `S7-01@11`, `S7-20@11`), diff Markdown, kết quả test và số liệu report đều được tôi trực tiếp kiểm tra lại trước khi commit.
