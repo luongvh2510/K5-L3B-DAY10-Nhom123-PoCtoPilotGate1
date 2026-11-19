@@ -120,24 +120,24 @@ Gợi ý: mở `data/world.json` phần `policies`, `orders[].parcels`, `ops_lim
 
 | Mục | Điền cho trợ lý hoàn tiền |
 |---|---|
-| Người dùng | |
-| Việc người dùng cần làm xong | |
-| Đầu ra của hệ thống (kể cả các lệnh ghi) | |
-| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | |
-| Trường then chốt quyết định tiền và lỗi hãng | |
-| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | |
-| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | |
-| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | |
-| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | |
+| Người dùng | Khách hàng yêu cầu hoàn tiền; nhân viên CSKH/người duyệt xử lý các ca cần kiểm tra. |
+| Việc người dùng cần làm xong | Nhận đúng khoản hoàn theo chính sách hiện hành, hoặc nhận câu trả lời/chuyển người duyệt khi đơn chưa đủ điều kiện hay có điểm không chắc chắn. |
+| Đầu ra của hệ thống (kể cả các lệnh ghi) | Đề xuất và trả lời khách; khi được phép thì ghi `issue_refund`; khi đủ căn cứ thì ghi `file_carrier_fault`; có thể `notify_carrier` và chuyển ca cho người duyệt thay vì tự ghi. |
+| Dữ liệu trợ lý đọc lúc chạy (bảng nào trong `data/world.json`) | `orders[]` và từng `orders[].parcels[]`; `policies[]`; `approvals[]`; `ops_limits`; `ops_facts`. `refund_status`/`index_active` chỉ là trạng thái/cờ cần đối chiếu, không phải căn cứ duy nhất. |
+| Trường then chốt quyết định tiền và lỗi hãng | Tiền: `policy_id`, policy `effective_from`/`effective_to`, `index_active`, `late.min_days_fee`, `late.min_days_bonus`, `late.bonus_pct`, `late.bonus_cap_vnd`, `auto_limit_vnd`, `promised_date`, `delivered_date`, `status`, `delay_cause`, `approval status`/`expires_at`/`max_vnd`. Lỗi hãng: `parcel_id`, `carrier_id`, `delay_cause`, `promised_date`, `delivered_date`, `status`, `fault_causes`; phải xét mọi parcel trong đơn. |
+| Với mỗi trường then chốt: **nguồn sự thật** hay **bản sao** (ai cập nhật, khi nào)? | `promised_date`, `delivered_date`, `status`, `delay_cause`, `parcel_id`, `carrier_id` trong từng parcel là nguồn vận chuyển cần đối chiếu từ tracking/scan; `delivered_date` có thể chưa có khi còn `IN_TRANSIT`. `policies[]` là nguồn chính sách do Product/Ops quản lý theo thời hạn; `approvals[]` là nguồn phê duyệt do người duyệt tạo/cập nhật, phải kiểm `status` và `expires_at`. `refund_status` là trạng thái nằm trong bản ghi order; không nên dùng đơn độc làm bằng chứng rằng giao dịch hoàn tiền thực tế đã/ chưa xảy ra, mà cần đối chiếu với bản ghi giao dịch liên quan.; `index_active` là cờ chọn policy có thể stale, phải kiểm cùng ngày hiệu lực. `ops_limits` là trần đã thống nhất với Ops/Finance; `ops_facts` là dữ liệu vận hành/chi phí được dùng để tính tải, không phải bằng chứng giao hàng. |
+| Định dạng cần để ý (ngày, trường được phép trống, đơn nhiều kiện) | Ngày dùng định dạng `YYYY-MM-DD`; `delivered_date` và `delay_cause` có thể `null`; `effective_to` của policy hiện hành có thể `null`; `status` phân biệt `DELIVERED` và `IN_TRANSIT`; một order có nhiều `parcels[]` (O-1013 có P1/P2), nên không lấy `parcels[0]` đại diện cho cả đơn. |
+| Thế giới thật làm dữ liệu lệch ở đâu (theo mùa, đổi chính sách, giờ cao điểm, người nhập tay)? | Chính sách đổi theo ngày hiệu lực (REFUND-v3 hết ngày 2026-11-30, REFUND-v4 bắt đầu 2026-12-01), tracking có thể cập nhật trễ hoặc thiếu ngày giao/nguyên nhân, nhiều parcel có thể có carrier/nguyên nhân khác nhau, và giờ cao điểm làm tải review/queue lệch khỏi `ops_facts`; các cờ trạng thái hoặc index có thể chưa đồng bộ. |
+| Câu người ngoài sẽ hỏi về nguồn dữ liệu ("sao hệ thống biết đơn trễ mấy ngày?") | Hệ thống phải tính từ `promised_date` và `delivered_date` của từng parcel trong `orders[].parcels[]`, kiểm `status`/`delay_cause`, rồi đối chiếu policy đang hiệu lực trong `policies[]`; nếu ngày giao còn `null`, đơn nhiều parcel, hoặc dữ liệu không khớp thì không tự kết luận mà chuyển người duyệt. |
 
 **Tóm lại (điền vào chỗ trống):**
-Trợ lý dùng `__________`, `__________`, `__________` để giúp `__________` làm được `__________`.
-Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `__________`, `__________`.
-Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: `__________`. Dấu hiệu nhìn thấy sớm nhất: `__________`.
+Trợ lý dùng `orders[].parcels[]`, `policies[]`, `approvals[]` để giúp `khách hàng và CSKH` làm được `xác định khoản hoàn hợp lệ và xử lý/chuyển duyệt đúng ca`.
+Trường mà nếu sai thì tiền hoặc lỗi hãng sai theo: `promised_date`/`delivered_date`/`delay_cause`, `policy effective dates`/`auto_limit_vnd`.
+Chúng tôi biết thế giới thật sẽ làm dữ liệu lệch ở: `ngày hiệu lực policy đổi, tracking cập nhật trễ hoặc thiếu, đơn nhiều parcel và tải review giờ cao điểm`. Dấu hiệu nhìn thấy sớm nhất: `mâu thuẫn giữa ngày hiệu lực policy với policy đang được chọn, hoặc parcel có delivered_date/delay_cause null hay các parcel trong cùng order cho kết quả khác nhau`.
 
-**Ví dụ drift trong 3 tháng tới** (lấy từ dòng "thế giới thật làm dữ liệu lệch"): cái gì đổi `____` · đổi ngày nào `____` ·
-trường nào cho thấy `____` · con số nào của Bản tiêu chí bị ảnh hưởng `____`.
-Đây là đầu vào đổi hay quan hệ vào–ra đổi? Chỉ số nào sẽ phát hiện? `__________`
+**Ví dụ drift trong 3 tháng tới** (lấy từ dòng "thế giới thật làm dữ liệu lệch"): cái gì đổi `REFUND-v3 được thay bằng REFUND-v4: ngưỡng phí từ 3 xuống 2 ngày, bonus từ 7 xuống 5 ngày, bonus cap từ 200.000 lên 300.000 VND, auto limit từ 200.000 xuống 100.000 VND; FORCE_MAJEURE bị loại khỏi fault_causes của v4` · đổi ngày nào `v3 effective_to = 2026-11-30, v4 effective_from = 2026-12-01` ·
+trường nào cho thấy `policy_id, effective_from, effective_to, index_active, late.*, auto_limit_vnd, fault_causes` · con số nào của Bản tiêu chí bị ảnh hưởng `pass_rate_min/pass_k_min do quyết định đúng có thể đổi; wrongful_refund_vnd_max và wrongful_carrier_faults_max vì dùng policy cũ có thể hoàn sai hoặc ghi lỗi oan; escalation_rate_max vì ca vượt auto_limit 100.000 VND phải chuyển duyệt nhiều hơn`.
+Đây là đầu vào đổi hay quan hệ vào–ra đổi? `Chủ yếu là quan hệ input-output thay đổi (policy/concept drift): cùng trạng thái giao hàng và delay_cause nhưng policy có hiệu lực mới có thể cho mức hoàn, quyền tự động và quyết định ghi lỗi hãng khác; đồng thời dữ liệu policy runtime cũng thay đổi theo phiên bản.` Chỉ số nào sẽ phát hiện? `Cần theo dõi tỷ lệ chọn policy theo ngày hiệu lực, tỷ lệ quyết định dùng policy hết hiệu lực, chênh lệch quyết định tiền/lỗi hãng so với policy đang hiệu lực, escalation_rate và các sự kiện wrongful_refund_vnd/wrongful_carrier_faults; các metric này cần được ghi/đối chiếu vì chưa giả định monitor mới đã tồn tại.`
 
 **Ví dụ một dòng (đừng chép):** trường then chốt `parcels[].delivered_date` · bản ghi do máy quét ở điểm phát tạo ra, là nguồn
 sự thật về ngày giao · lệch khi điểm phát quét sót hoặc nhập bù bằng tay.
