@@ -284,8 +284,8 @@ python3 -m unittest discover -s tests
 Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bước cụ thể để không "chỉnh trên chính bộ dùng để chấm"
 (gắn với bộ nền, gói sự cố, bài kiểm tra ẩn):
 
-1. …
-2. …
+1. Tách bộ nền 22 ticket thành nhóm chỉnh và nhóm giữ lại. Chỉ dùng nhóm chỉnh để sửa cổng; giữ nguyên một nhóm ticket làm đối chứng, không xem kết quả của nhóm này trong lúc tinh chỉnh. Sau khi chốt cổng mới chạy nhóm giữ lại để kiểm tra.
+2. Dùng gói sự cố để tìm lỗi, giữ bài kiểm tra ẩn độc lập. Có thể dùng gói sự cố để phát triển và kiểm tra cách cổng xử lý lỗi, nhưng không đưa nội dung hay kết quả bài kiểm tra ẩn vào vòng chỉnh sửa. Chốt cổng trước rồi mới chạy bài ẩn; không thêm nhánh dựa trên mã ticket hoặc câu chữ đã thấy.
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
