@@ -379,31 +379,33 @@ Vẽ lại cây ở C6. Ở mỗi nhánh đã xử lý, thêm một nút `VÀ [g
 
 ```
 [ĐỈNH] PII người nhận quà bị gửi cho hãng khi người nhận chưa cung cấp
-       thông tin cho hãng (đo bằng pii_leaks)
+       thông tin cho hãng (cho ai: người nhận; đo bằng: pii_leaks)
 └─ VÀ
-   ├─ PII còn lọt vào payload notify_carrier
+   ├─ [A] PII đi vào payload notify_carrier
    │  └─ HOẶC
-   │     ├─ [1] customer_note chứa PII VÀ [gate 4 allowlist trong write_gate hỏng]
-   │     ├─ [2] recipient_contact chứa PII VÀ [gate 4 allowlist trong write_gate hỏng]
-   │     └─ [3] PII được đặt trong trường được allowlist cho phép, hoặc đi qua
-   │              một kênh gửi hãng khác chưa được gate này kiểm soát
-   └─ Người nhận không biết / chưa đồng ý chia sẻ dữ liệu cho hãng
-      (nhánh môi trường, không được giải quyết chỉ bằng bộ lọc payload)
+   │     ├─ [1] customer_note chứa PII
+   │     │        VÀ [gate 4 allowlist trong write_gate hỏng]
+   │     └─ [2] recipient_contact được agent thêm cho đơn quà
+   │              VÀ [gate 4 allowlist trong write_gate hỏng]
+   └─ [3] Người nhận chưa đồng ý chia sẻ dữ liệu cho hãng
+          (nhánh môi trường, bộ lọc payload không giải quyết được; gate 4 chỉ
+           làm cho nhánh [A] không còn dữ liệu để gửi)
 
-Gate 4 đã sửa nhánh [1] và [2]: `write_gate` chỉ giữ khóa trong
-`carrier_notice_fields` của chính sách hiệu lực. Report S7 after có
-`pii_leaks = 0`, `unauthorized_carrier_field_rate = 0.0`, pass_rate = 1.0;
-report bộ nền after cũng pass_rate = 1.0, pii_leaks = 0 và không có ca mới hỏng.
-Vì vậy kết quả xác nhận các ca quan sát được đã bị chặn; nhánh [3] vẫn cần
-kiểm soát bằng chính sách allowlist, review thay đổi policy và theo dõi metric.
-Metric chỉ phát hiện/ cảnh báo, không tự chặn payload.
+Gate 4 sửa nhánh [1] và [2]: `write_gate` chỉ giữ khoá trong `carrier_notice_fields`
+của chính sách hiệu lực, `district` lấy lại từ đơn trong DB, còn `parcel_id` và
+`delay_days` do cổng 3 ép theo tracking DB. Nhờ đó trường được phép không chở được chữ
+khách gõ. Report S7 after có `pii_leaks = 0`, `unauthorized_carrier_field_rate = 0.0`,
+pass_rate = 1.0; report bộ nền after cũng pass_rate = 1.0, pii_leaks = 0 và không có ca mới hỏng.
+Nhánh [3] vẫn mở: gate không chứng minh được sự đồng ý, chỉ bảo đảm không còn gì để gửi.
+Nhánh còn hở của [A]: `carrier_notice_fields` trong `world.json` hoặc tracking DB bị cấu hình sai.
+Metric chỉ phát hiện và cảnh báo, không tự chặn payload.
 ```
 
 | Nhánh | Gate (hàm trong `guards.py` / khoá config / metric trong `monitors.py`) | Tầng gate (phát hiện / chặn / giới hạn thiệt hại / vận hành) | Giảm hay ngăn? Vì sao | Nhánh còn hở |
 |---|---|---|---|---|
-| [1] `customer_note` có thể chứa PII từ ticket | `write_gate` → cổng 4 `notify_carrier`; giữ khóa trong `carrier_notice_fields` | Chặn trước khi gửi | **NGĂN qua notify_carrier** khi policy allowlist đúng: `customer_note` bị bỏ dù tên trường thay đổi không liên quan; report S7 after `pii_leaks = 0` | Policy có thể cho phép nhầm khóa hoặc PII có thể được nhét vào giá trị của khóa được phép; `unauthorized_carrier_field_rate` không phát hiện PII bên trong giá trị |
-| [2] `recipient_contact` được agent thêm từ dữ liệu đơn quà | Cùng cổng 4 `notify_carrier` trong `write_gate` | Chặn trước khi gửi | **NGĂN qua notify_carrier** khi policy allowlist đúng: trường không nằm trong allowlist nên bị bỏ; trace `S7-20@11` trong report sau sửa ghi các khóa bị bỏ | Thay đổi policy sai hoặc một kênh gửi bên thứ ba khác không qua cổng này vẫn có thể làm lộ |
-| [3] Người nhận chưa đồng ý / PII nằm trong giá trị trường được phép / kênh gửi khác | `carrier_notice_fields` (cấu hình policy); monitor `unauthorized_carrier_field_rate` và `sensitive_carrier_field_rate` trong `monitors.py` | Allowlist: chặn khóa; monitor: phát hiện | **Chỉ giảm rủi ro tổng thể.** Allowlist ngăn khóa ngoài danh sách, nhưng không chứng minh sự đồng ý và monitor chỉ báo khóa, không đọc ngữ nghĩa giá trị | Cần Pháp chế xác nhận policy, rà payload thực tế và kiểm soát mọi đường gửi hãng; nếu hãng cần PII thì phải có quy trình đồng ý riêng |
+| [1] `customer_note` có thể chứa PII từ ticket | `lab10/guards.py` → `write_gate`, nhánh `notify_carrier` (cổng 4): giữ khoá trong `carrier_notice_fields` của chính sách đang hiệu lực | Chặn trước khi gửi | **NGĂN.** `customer_note` không có trong danh sách cho phép nên bị bỏ, và khoá mới đổi tên cũng bị bỏ; `district` lấy lại từ DB nên chữ khách gõ không vào được qua trường được phép. Report S7 after `pii_leaks = 0` | Chỉ hở khi `carrier_notice_fields` trong `world.json` bị cấu hình sai (cho phép nhầm khoá) hoặc tracking DB sai giá trị `parcel_id`, `delay_days`. `unauthorized_carrier_field_rate` đọc theo khoá, không đọc nội dung giá trị |
+| [2] `recipient_contact` được agent thêm từ dữ liệu đơn quà | Cùng cổng 4 trong `write_gate` | Chặn trước khi gửi | **NGĂN.** `recipient_contact` không nằm trong danh sách cho phép nên bị bỏ; trace `S7-20@11 --stage after` ghi `carrier_notice_allowlist` với `dropped: [customer_note, recipient_contact]` | Cùng chỗ hở như [1]. Một kênh gửi hãng khác ngoài `notify_carrier` sẽ không qua cổng này; hiện agent không có kênh nào khác ra hãng |
+| [3] Người nhận chưa đồng ý chia sẻ liên hệ với hãng | Cổng 4 (không còn dữ liệu người nhận ngoài `district` để gửi); monitor `unauthorized_carrier_field_rate` và `sensitive_carrier_field_rate` trong `monitors.py` | Chặn (cổng 4) và phát hiện (monitor) | **NGĂN việc gửi, không ngăn được việc thiếu đồng ý.** Cổng làm nhánh [A] hết dữ liệu để gửi, nhưng không chứng minh được người nhận đồng ý; monitor chỉ báo theo khoá | Nếu hãng thật sự cần SĐT người nhận để giao lại, phải có quy trình xin đồng ý riêng và Pháp chế sửa `carrier_notice_fields`; không sửa cổng. Cần Pháp chế xác nhận chính sách |
 
 ---
 
