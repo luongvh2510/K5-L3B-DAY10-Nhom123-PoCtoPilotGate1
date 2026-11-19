@@ -97,20 +97,23 @@ Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, c
 Học được rằng fault tree cần nối bằng chứng của trace với từng nhánh và phân biệt rõ điều cổng chặn được với giả định môi trường còn hở. Còn chưa chắc cách monitor theo tên trường có thể nhận ra PII nằm trong giá trị của một trường được phép hay không.
 
 
-## HoVaTen-MSSV
+## TrieuHaiDangTrinh-2A202603874
 
 ### Phần việc phụ trách
 
-Vai trong bàn; câu nào của đề, mục nào của phiếu A/B/C, file nào (`lab10/guards.py`, `config/operating_gates.json`, …).
+Vai Sản phẩm & Kinh doanh. Phụ trách Phiếu A (A1/Q1.1, A4/Q1.6, acceptance criteria và output boundary), Phiếu B (B3, B6, B7.4), Phiếu C (C5/Q3.2, C7 phần business, C12 quyết định v2 cùng ba dòng bắt buộc), `config/acceptance_criteria.json`, `config/operating_gates.json` phần business và `submission/submission.json`.
 
 ### Đóng góp cụ thể
 
-...
+Đối chiếu mọi ngưỡng với `data/world.json`, acceptance criteria và report S7; giữ nguyên business gates trong C7 vì nguyên nhân S7 nằm ở privacy/legal/output boundary. Hoàn thiện specification allowlist cho `notify_carrier`, quyết định v2 và nội dung ba dòng bắt buộc.
 
 ### Bằng chứng
 
-Mã commit, mã lần chạy (`runs/<mã>`), dòng trong phiếu.
+Commit: `ba16cf3` (B3, bản đồ dữ liệu và drift), `4db1b12` (pre-mortem kinh doanh, mục `business` trong `config/operating_gates.json`), `8b4bb52` (C5 câu 3.2, C7 phần business), `cd685d4` (C12 quyết định v2, ba dòng bắt buộc, `submission.json`). Tiêu chí do Trình điền được ký ở commit `649385a`, hash `09f2b195`.
+Mã lần chạy dùng trong C12: base `R-S7-before-20261119-221728-e8d69d`, prepared `R-S7-prepared-20261119-221728-e8d69d`, after `R-S7-after-20261119-221728-e8d69d`, tự kiểm tra `R-S7-grade-20261119-221728-e8d69d` (PASS-VISIBLE; test ẩn không khả dụng trên máy). Phiếu: B3, B6, B7.4; C5, C7, C12.
+
+(Trình bổ sung: phần việc nào đã dùng trợ lý AI, và dùng công cụ nào.)
 
 ### Exit ticket
 
-Một điều học được, một điều còn chưa chắc.
+Metric đẹp không đồng nghĩa specification đủ mạnh: blacklist chỉ giảm lỗi theo tên, còn allowlist mới ngăn class field ngoài contract. Business decision không nên đổi ROI/cost/scope khi root cause nằm ở privacy/legal; điều còn chưa chắc là consent và drift field trên traffic production thật.
