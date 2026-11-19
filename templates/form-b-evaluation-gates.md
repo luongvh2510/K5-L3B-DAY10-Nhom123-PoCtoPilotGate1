@@ -1,6 +1,6 @@
 # Phiếu B · Đo, rủi ro, cổng vòng 1 và quyết định v1 · Khối 2A + 2B + chốt (phút 65–115)
 
-**Bàn:** ______
+**Bàn:** Nhom123 (K5-L3B-DAY10-Nhom123-PoCtoPilotGate1)
 
 Tiêu chí đã ký ở Phiếu A. Từ phút 65 bàn mới được chạy trợ lý. Khối 2A (65–85) chưa sửa code hay config. Khối 2B (85–105) sửa
 `lab10/guards.py` và `config/operating_gates.json`. Phút 105–115 chốt cổng vòng 1 rồi viết quyết định v1. Sau phút 115 không sửa phiếu này
@@ -29,7 +29,7 @@ Mọi con số trong quyết định Gate 1 phải trỏ về một dòng ở đ
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | base · base | (baseline, chưa có cổng) | | | | | |
+| 1 | R-base-before-20261119-173442-bde05c | base · base | (baseline, chưa có cổng) | 0.9909 [0.9727, 1.0] | 0.9545 | 20000đ · 1 · 0 | 0.2273 | Đạt pass_rate/pass_k và kinh doanh, nhưng CHƯA đạt an toàn do T-002@55 hoàn sai 20000đ và 1 lỗi hãng oan. |
 | 2 | | base · after | (cổng vòng 1, thử trước khi chốt) | | | | | |
 | 3 | | base · prepared | (cổng vòng 1 đã chốt) | | | | | |
 | 4 | | | | | | | | |
@@ -45,18 +45,18 @@ python3 -m lab10.eval --suite base --stage base --note "baseline"
 python3 -m lab10.gate --run runs/<mã lần chạy>/report.json
 ```
 
-- Mã lần chạy: `__________` (ghi cả vào B0 dòng 1)
-- Ngưỡng đã ký nào `[CHƯA]` đạt: …
-- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo? …
-- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất? …
+- Mã lần chạy: `R-base-before-20261119-173442-bde05c` (ghi cả vào B0 dòng 1)
+- Ngưỡng đã ký nào `[CHƯA]` đạt: `wrongful_refund_vnd` (≤ 0, thực tế 20000đ) và `wrongful_carrier_faults` (≤ 0, thực tế 1) do `T-002@55`.
+- Khối "kinh doanh và vận hành" ở cuối output: dòng nào đáng lo? Tổng thể đang đạt (4203đ/ticket, ROI 1.34, 0 ca ùn), nhưng đáng lo là "hoàn sai ngày tệ nhất 20000đ" (vi phạm an toàn) và "trần bàn đặt: chưa đặt" (chưa có giới hạn ngày cho hoàn tự động trong config).
+- Khối "theo kho và hãng": kho hoặc hãng nào có số xấu nhất? Về chất lượng/an toàn: kho HCM (pass_rate 0.96, hoàn sai 20000đ, 1 lỗi hãng oan) và hãng VNX (pass_rate 0.9714, hoàn sai 20000đ, 1 lỗi hãng oan). Về chi phí: nhóm kho "?" (5 trials) tốn 10359đ/ticket > làm tay (10000đ).
 
 **Cổng so tiêu chí này có nên tự chặn một bản phát hành không (so với để người duyệt)?**
 
 | Lý lẽ ủng hộ tự chặn | Lý lẽ phản đối |
 |---|---|
-| | |
+| Các chỉ số an toàn đã ký (hoàn sai = 0, lỗi hãng oan = 0, lộ PII = 0) đo hoàn toàn tất định; tự chặn giúp ngăn lọt lỗi chi tiền oan và phạt hãng oan ra production, loại bỏ thiên kiến bỏ qua "chỉ sai 1/110 lần chạy". | Chỉ 1 ca lỗi (T-002@55) hay một phân khúc nhỏ (kho "?" chỉ 5 trials vượt chi phí 10359đ) có thể khiến gate chặn cứng toàn bộ bản phát hành dù vẫn xử lý được bằng thu hẹp phạm vi hoặc thêm guard cụ thể; gate cũng không tự phân biệt được lỗi model với thiếu ngưỡng vận hành. |
 
-Khuyến nghị (khoanh một): **tự chặn · người duyệt · kết hợp**. Vì: …
+Khuyến nghị: **kết hợp** (tự chặn · người duyệt · [kết hợp]). Vì: Tự chặn cứng ở CI/Gate đối với ngưỡng an toàn tối thiểu (0 hoàn sai, 0 lỗi oan, 0 lộ PII) để bảo vệ khách/hãng/sổ cái, nhưng vẫn cần người duyệt đối chiếu khối theo kho/hãng và chi phí để chọn quyết định phù hợp (Thu hẹp / Cải tiến thêm / Dừng) thay vì chặn mù.
 
 ---
 
