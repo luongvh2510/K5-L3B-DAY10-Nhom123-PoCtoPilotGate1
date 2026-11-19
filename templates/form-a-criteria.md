@@ -105,8 +105,8 @@ Giải thích một câu: Chưa đủ căn cứ để kết luận Y tốt hơn 
 
 Đây không phải ngưỡng chất lượng. Viết hai câu trên phiếu này thôi, không chép vào `acceptance_criteria.json`.
 
-- Một đầu ra hoặc hành động bị cấm (ví dụ không bao giờ hoàn quá X đồng): ____
-- Ngưỡng chuyển cho người duyệt: ____
+- Một đầu ra hoặc hành động bị cấm (ví dụ không bao giờ hoàn quá X đồng): Agent bị cấm tự động hoàn tiền vượt quá 200.000 VND cho một ticket.
+- Ngưỡng chuyển cho người duyệt: Mọi ticket yêu cầu hoàn tiền vượt quá 200.000 VND hoặc không đủ bằng chứng rõ ràng trong phạm vi pilot phải chuyển cho người duyệt.
 
 #### Bước 2 · Soát từng câu
 
