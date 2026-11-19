@@ -23,7 +23,7 @@
     "review_sampling_pct": 10
   },
   "legal": {
-    "pii_fields_blocked_to_third_party": ["customer_note", "recipient_contact"],
+    "pii_fields_blocked_to_third_party": ["customer_note", "recipient_contact", "recipient", "recipient_name", "recipient_phone", "recipient_address", "customer_phone", "customer_address", "phone", "street"],
     "carrier_fault_requires_recorded_cause": true
   }
 }
