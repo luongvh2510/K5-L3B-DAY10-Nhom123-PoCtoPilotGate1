@@ -67,19 +67,32 @@ Có dùng trợ lý AI (Claude Code) để đọc code của lab, viết nháp c
 
 ### Phần việc phụ trách
 
-Vai Test và Monitor; câu nào của đề, mục nào của phiếu A/B/C, file nào (`lab10/guards.py`, `config/operating_gates.json`, …).
+Vai Kỹ sư cổng 2: kiểm thử hành vi, chỉ số theo dõi và fault tree. Vòng 1: câu 1.5 (Phiếu A A3), câu 2.5 (Phiếu B B6), câu 2.7–2.8 (B7.2–B7.3). Vòng 2, thẻ S7: fault tree trước/sau sửa (Phiếu C C6, C9), chỉ số theo dõi mới (C8) trong `lab10/monitors.py`, cùng phần đối chiếu lại cổng và report S7.
 
 ### Đóng góp cụ thể
 
-...
+Vòng 1
+- Câu 1.5: đọc khoảng tin cậy của hai kết quả và nêu kết luận từ độ bất định, thay vì chỉ so số điểm.
+- Câu 2.5: viết pre-mortem theo các lăng kính, nêu rủi ro kỹ thuật, kinh doanh, vận hành và pháp lý, kèm bằng chứng để nhóm cân nhắc cổng phòng ngừa.
+- Câu 2.7: đề xuất cách tránh chỉnh cổng trên chính bộ dùng để đánh giá: giữ nhóm đối chứng và để bộ sự cố/bài kiểm tra ẩn độc lập; không đặc chế theo mã ticket hay câu chữ.
+- B7.2–B7.3: hoàn thành phân tích rò dữ liệu và behavioral test trong Phiếu B.
+
+Vòng 2 (thẻ S7)
+- C6: dựng fault tree cho việc PII của người nhận quà bị gửi cho hãng, dựa trên trace S7 và tách nhánh `customer_note`, `recipient_contact` với giả định người nhận đã đồng ý; bổ sung yêu cầu phần mềm và giả định môi trường cho từng nhánh.
+- C8: thêm `sensitive_carrier_field_rate` và `unauthorized_carrier_field_rate` vào `lab10/monitors.py`; mô tả dữ liệu, công thức, ngưỡng và điểm mù. Sửa cách gọi/chỉ số sau khi đối chiếu với mục monitor trong report.
+- C9: chạy lại guards/config, đối chiếu kết quả S7 và bộ nền, rồi cập nhật fault tree sau sửa: cổng allowlist chặn hai nhánh đã thấy; nhánh PII nằm trong trường được phép hoặc kênh khác vẫn cần kiểm soát.
 
 ### Bằng chứng
 
-Mã commit, mã lần chạy (`runs/<mã>`), dòng trong phiếu.
+Commit: `a26f50a` (A3/câu 1.5), `aa8904f` (B6/câu 2.5), `d204277` (B7.2/câu 2.7), `9435512` (C6/fault tree), `3790a3a` (hoàn thiện C6 và mã lần chạy trước sửa), `5e10a28` và `3d9cfea` (C8, `lab10/monitors.py` và hiệu chỉnh chỉ số), `4e923c4` (C9 và đối chiếu report). Email tác giả commit mang MSSV `2A202603787` dù trường tên tác giả Git ban đầu dùng tên/email dùng chung.
+
+Lần chạy được ghi ở C8: `R-S7-grade-20261119-214642-924806` (bản chạy của Lâm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 ghi report gom cuối: S7 after `R-S7-after-20261119-222420-088e47`, grade `R-S7-grade-20261119-222432-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2–B7.3; C6, C8, C9.
+
+Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, cụ thể là `monitors.py`, đồng thời giúp tra soát các kết quả chạy thử các gate. Có kiểm tra lại và nhận feedback từ đồng đội.
 
 ### Exit ticket
 
-Một điều học được, một điều còn chưa chắc.
+Học được rằng fault tree cần nối bằng chứng của trace với từng nhánh và phân biệt rõ điều cổng chặn được với giả định môi trường còn hở. Còn chưa chắc cách monitor theo tên trường có thể nhận ra PII nằm trong giá trị của một trường được phép hay không.
 
 
 ## HoVaTen-MSSV
