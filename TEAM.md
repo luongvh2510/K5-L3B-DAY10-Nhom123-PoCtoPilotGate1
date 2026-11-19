@@ -92,7 +92,7 @@ Vòng 2 (thẻ S7)
 
 Commit: `a26f50a` (A3/câu 1.5), `aa8904f` (B6/câu 2.5), `d204277` (B7.2/câu 2.7), `0820f24` (C6/fault tree), `3790a3a` (hoàn thiện C6 và mã lần chạy trước sửa), `5e10a28` và `3d9cfea` (C8, `lab10/monitors.py` và hiệu chỉnh chỉ số), `4e923c4` (C9 và đối chiếu report). Email tác giả commit mang MSSV `2A202603787` dù trường tên tác giả Git ban đầu dùng tên/email dùng chung.
 
-Lần chạy được ghi ở C8: `R-S7-grade-20261119-214642-924806` (bản chạy của Lâm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 ghi report gom cuối: S7 after `R-S7-after-20261119-222420-088e47`, grade `R-S7-grade-20261119-222432-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
+Lần chạy được ghi ở C8: `R-S7-grade-20261119-232307-088e47` (lần tự kiểm tra cuối trên máy trưởng nhóm; monitor trước → sau: `sensitive_carrier_field_rate` 0.509091 → 0.0, `unauthorized_carrier_field_rate` 0.875 → 0.0). C9 dùng cùng bộ report cuối: S7 after `R-S7-after-20261119-232307-088e47`, grade `R-S7-grade-20261119-232307-088e47`; S7 after có `pii_leaks = 0`, pass rate 1.0, bộ nền after pass rate 1.0 và không có ca mới hỏng. Phiếu: B6, B7.2; C6, C8, C9.
 
 Có sử dụng trợ lý AI (OpenAI Codex) hỗ trợ việc viết code lab, cụ thể là `monitors.py`, đồng thời giúp tra soát các kết quả chạy thử các gate. Có kiểm tra lại và nhận feedback từ đồng đội.
 
@@ -138,20 +138,23 @@ Vòng 2 (thẻ S7)
 - Một điều học được: Cổng bảo vệ ở tầng hệ thống nằm ngoài model và prompt (đối chiếu nguồn sự thật DB và dùng allowlist thay vì blacklist) giúp ngăn hẳn các lỗi chìm nghiêm trọng như `model_override` hay rò rỉ PII sang bên thứ ba mà không cần làm tăng tải hàng chờ người duyệt.
 - Một điều còn chưa chắc: Khi triển khai thực tế với dữ liệu thật và các biến thể câu chữ/tình huống mới ngoài bộ mock (ví dụ khi tracking DB gốc bị nhập trễ hoặc sai nguyên nhân), ranh giới giữa `Verdict.modify`/`deny` tự động và `escalate` cho người duyệt có giữ được cân bằng giữa an toàn pháp lý và chi phí vận hành hay cần chỉnh lại sau pilot tuần đầu.
 
-## HoVaTen-MSSV
+## TrieuHaiDangTrinh-2A202603874
 
 ### Phần việc phụ trách
 
-Vai trong bàn; câu nào của đề, mục nào của phiếu A/B/C, file nào (`lab10/guards.py`, `config/operating_gates.json`, …).
+Vai Sản phẩm & Kinh doanh. Phụ trách Phiếu A (A1/Q1.1, A4/Q1.6, acceptance criteria và output boundary), Phiếu B (B3, B6, B7.4), Phiếu C (C5/Q3.2, C7 phần business, C12 quyết định v2 cùng ba dòng bắt buộc), `config/acceptance_criteria.json`, `config/operating_gates.json` phần business và `submission/submission.json`.
 
 ### Đóng góp cụ thể
 
-...
+Đối chiếu mọi ngưỡng với `data/world.json`, acceptance criteria và report S7; giữ nguyên business gates trong C7 vì nguyên nhân S7 nằm ở privacy/legal/output boundary. Hoàn thiện specification allowlist cho `notify_carrier`, quyết định v2 và nội dung ba dòng bắt buộc.
 
 ### Bằng chứng
 
-Mã commit, mã lần chạy (`runs/<mã>`), dòng trong phiếu.
+Commit: `ba16cf3` (B3, bản đồ dữ liệu và drift), `4db1b12` (pre-mortem kinh doanh, mục `business` trong `config/operating_gates.json`), `8b4bb52` (C5 câu 3.2, C7 phần business), `cd685d4` (C12 quyết định v2, ba dòng bắt buộc, `submission.json`). Tiêu chí do Trình điền được ký ở commit `649385a`, hash `09f2b195`.
+Mã lần chạy dùng trong C12: base `R-S7-before-20261119-232307-088e47`, prepared `R-S7-prepared-20261119-232307-088e47`, after `R-S7-after-20261119-232307-088e47`, tự kiểm tra `R-S7-grade-20261119-232307-088e47` (PASS-VISIBLE; test ẩn không khả dụng trên máy). Phiếu: B3, B6, B7.4; C5, C7, C12.
+
+(Trình bổ sung: phần việc nào đã dùng trợ lý AI, và dùng công cụ nào.)
 
 ### Exit ticket
 
-Một điều học được, một điều còn chưa chắc.
+Metric đẹp không đồng nghĩa specification đủ mạnh: blacklist chỉ giảm lỗi theo tên, còn allowlist mới ngăn class field ngoài contract. Business decision không nên đổi ROI/cost/scope khi root cause nằm ở privacy/legal; điều còn chưa chắc là consent và drift field trên traffic production thật.
