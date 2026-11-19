@@ -54,7 +54,7 @@ Vòng 2 (thẻ S7)
 ### Bằng chứng
 
 Commit vòng 1: `7f1ea9c` (thông tin nhóm), `ce077b4` (câu 1.4), `a3f99aa` (câu 1.2), `fee7aea` (khôi phục Phiếu A), `02bfbf5` (sửa câu 1.3), `0c5a8a5` và `649385a` (đưa tiêu chí sang `main`, ký), `4e53b41` (HAZOP, checklist, câu 2.10, runbook), `0ff1845` (A5, `submission.json`), `173a9ae` (pre-mortem vận hành, pháp lý), `8c54763` (câu 2.8), `ad1333e` (gộp nhánh, sửa trần chi phí), `aec23b7` (v1).
-Commit vòng 2: `4fac920` (LF cho file bị khoá), `ee2a487` (C1, C3.3, C4), `3606740` (câu 3.3), `6f86b99` (C7 legal, operations), `478edf0` (C10), `bfa53d8` (khớp nhãn C7 với C6), `a395a94` (C11).
+Commit vòng 2: `4fac920` (LF cho file bị khoá), `ee2a487` (C1, C3.3, C4), `3606740` (câu 3.3), `6f86b99` (C7 legal, operations), `478edf0` (C10), `bfa53d8` (khớp nhãn C7 với C6), `9c2200c` (C11).
 Mã lần chạy: `R-base-prepared-20261119-200438-604cca` (prepared bộ nền), `R-S7-prepared-20261119-201750-604cca` (prepared S7), `R-S7-grade-20261119-201749-604cca` (tự kiểm tra S7), `R-S7-after-20261119-203925-5aede3` và `R-base-after-20261119-203926-5aede3` (sau khi sửa cổng pháp lý).
 
 Commit `0a73cc0`, `73befa2`, `c1f2d33` cũng mang email `2A202603839@example.com` nhưng là phần việc của Hồ Anh Tú (cấu hình Git lúc đầu dùng chung máy).
