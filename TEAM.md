@@ -28,7 +28,7 @@ Mỗi thành viên tự viết một mục bên dưới (chép mẫu, đổi ti�
 
 ### Phần việc phụ trách
 
-Vai Vận hành và pháp lý, kiêm trưởng nhóm và chủ repo. Vòng 1: câu 1.2, 1.4 (Phiếu A mục A1, A2); ký tiêu chí trên `main` (A5); câu 2.4 HAZOP vòng 1 và checklist 9 nhóm việc (Phiếu B mục B4, B5); câu 2.10 (`config/operating_gates.json` mục `operations`, `legal`; B7.5 runbook 1–3, B7.6 giờ cao điểm). Làm thay phần Kỹ sư cổng khi phần đó chưa được nộp: câu 2.6 cổng vòng 1 trong `lab10/guards.py`, câu 2.8 (B7.3), chốt vòng 1 (`lab10.checkpoint`), quyết định v1 (B8). Vòng 2 (thẻ S7): C0, C1, phần riêng của thẻ C3.3, HAZOP của thẻ C4, câu 3.3 (C5), C7 phần `legal` và `operations`, risk register (C10), runbook 4–5 (C11), gom bài nộp (`submission/`).
+Vai Vận hành và pháp lý, kiêm trưởng nhóm và chủ repo. Vòng 1: câu 1.2, 1.4 (Phiếu A mục A1, A2); ký tiêu chí trên `main` (A5); câu 2.4 HAZOP vòng 1 và checklist 9 nhóm việc (Phiếu B mục B4, B5); câu 2.10 (`config/operating_gates.json` mục `operations`, `legal`; B7.5 runbook 1–3, B7.6 giờ cao điểm). Hỗ trợ thêm: câu 2.8 (B7.3), quyết định v1 (B8). Vòng 2 (thẻ S7): C1, phần riêng của thẻ C3.3, HAZOP của thẻ C4, câu 3.3 (C5), C7 phần `legal` và `operations`, risk register (C10), runbook 4–5 (C11), gom bài nộp (`submission/`).
 
 ### Đóng góp cụ thể
 
@@ -39,25 +39,27 @@ Vòng 1
 - Ký tiêu chí: phát hiện lần ký đầu sai message commit và hash lệch do xuống dòng CRLF trên Windows; thêm `.gitattributes` (LF), chuyển tiêu chí sang `main` và ký lại trước lần đánh giá đầu tiên.
 - HAZOP vòng 1 trên `file_carrier_fault` (5 dòng kỹ thuật, 3 dòng ngoài kỹ thuật) rút từ `lab10/agent.py`; checklist 9 nhóm việc có PIC từng dòng.
 - Câu 2.10: PIC NV-TUNG, người duyệt NV-HANH, 1 người trực, 6 ca/giờ, chờ tối đa 60 phút, 4 điều kiện dừng, `decision_note` bật, kiểm mẫu 10%, chặn `customer_note` và `recipient_contact` khi gửi hãng, bắt buộc có nguyên nhân trễ trước khi ghi lỗi hãng; runbook 1–3 và giờ cao điểm khớp tiêu chí đã ký.
-- Câu 2.6 (làm thay): 3 cổng trong `guards.py`: `pre_guard` ghim chính sách theo ngày; `write_gate` cho `issue_refund` so tiền với `entitlement_vnd` theo tracking DB (vượt thì `modify` hoặc `deny`, `fail_open` và người trả khác LogiX thì chuyển người); `write_gate` cho `file_carrier_fault` chỉ ghi khi `carrier_at_fault` đúng, sửa lại mã kiện, hãng, số ngày trễ theo DB. Câu 2.8: behavioral test số ngày trễ khách khai.
-- Chốt vòng 1 và quyết định v1 **Tiếp tục**: mốc prepared đạt cả 9 ngưỡng đã ký; sửa `business.cost_budget_per_ticket_vnd` từ 7500 về 1500 (trần tiền máy).
+- Câu 2.8: behavioral test số ngày trễ khách khai, hai ticket hiểm O-1004 và O-1024 kèm kết quả trace.
+- Quyết định v1 **Tiếp tục**: mốc prepared đạt cả 9 ngưỡng đã ký; sửa `business.cost_budget_per_ticket_vnd` từ 7500 về 1500 (trần tiền máy).
 
 Vòng 2 (thẻ S7)
-- Nhận thẻ, chạy mốc prepared và tự kiểm tra; cố định LF cho các file bị khoá để kiểm toàn vẹn đạt trên Windows.
+- Cố định LF cho các file bị khoá (`lab10/`, `data/`, `incidents/`, `tests/`) để kiểm toàn vẹn đạt trên Windows.
 - C1: cổng pháp lý vòng 1 đã đưa số lần lộ PII của S7 về 0; dòng còn lỗi duy nhất là thiếu chỉ số mới trong `monitors.py`.
 - C3.3 hiệu chỉnh lòng tin cho người đặt hàng và người nhận quà; C4 HAZOP của thẻ trên `notify_carrier` (4 dòng, có nhánh chưa thấy trên trace); câu 3.3 giả định môi trường về chữ khách gõ và người nhận đơn quà.
 - C7 phần `legal`: thêm 8 tên trường dự phòng vào `pii_fields_blocked_to_third_party`, ghi rõ đây là GIẢM khả năng (chặn theo tên), còn NGĂN cần cổng danh sách cho phép theo `carrier_notice_fields`; `operations` không đổi, có số report làm căn cứ.
-- Soát bài vòng 2 của các thành viên (câu 3.2, C6) và ghi lại phần còn thiếu.
+- C10 risk register: 2 dòng (dữ liệu người nhận lọt qua cổng chặn theo tên, PIC NV-TUNG, MANAGE; cổng chặn dữ liệu đẩy ca sang người duyệt, PIC NV-HANH, MEASURE), mỗi dòng có metric và ảnh hưởng tới v2.
+- C11: cập nhật checklist 6 nhóm việc có PIC; Runbook 4 sau sự cố (tín hiệu lẽ ra báo trước, báo hãng, người nhận, Pháp chế, dữ liệu không thu hồi được); Runbook 5 ba kịch bản tuần đầu.
+- Soát bài vòng 2 của các thành viên (câu 3.2, C6, C8), khớp nhãn nhánh giữa C6 và C7, gộp nhánh bị xung đột.
 
 ### Bằng chứng
 
-Commit vòng 1: `7f1ea9c` (thông tin nhóm), `ce077b4` (câu 1.4), `a3f99aa` (câu 1.2), `fee7aea` (khôi phục Phiếu A), `02bfbf5` (sửa câu 1.3), `0c5a8a5` và `649385a` (đưa tiêu chí sang `main`, ký), `4e53b41` (HAZOP, checklist, câu 2.10, runbook), `0ff1845` (A5, `submission.json`), `173a9ae` (pre-mortem vận hành, pháp lý), `8c54763` (câu 2.8), `ad1333e` (gộp nhánh, sửa trần chi phí), `91043d6` (câu 2.6), `18b7031` (chốt vòng 1, hash `e3255aca`), `aec23b7` (v1).
-Commit vòng 2: `7746ae4` (nhận thẻ S7), `4fac920` (LF cho file bị khoá), `ee2a487` (C0, C1, C3.3, C4), `3606740` (câu 3.3), `6f86b99` (C7 legal, operations).
+Commit vòng 1: `7f1ea9c` (thông tin nhóm), `ce077b4` (câu 1.4), `a3f99aa` (câu 1.2), `fee7aea` (khôi phục Phiếu A), `02bfbf5` (sửa câu 1.3), `0c5a8a5` và `649385a` (đưa tiêu chí sang `main`, ký), `4e53b41` (HAZOP, checklist, câu 2.10, runbook), `0ff1845` (A5, `submission.json`), `173a9ae` (pre-mortem vận hành, pháp lý), `8c54763` (câu 2.8), `ad1333e` (gộp nhánh, sửa trần chi phí), `aec23b7` (v1).
+Commit vòng 2: `4fac920` (LF cho file bị khoá), `ee2a487` (C1, C3.3, C4), `3606740` (câu 3.3), `6f86b99` (C7 legal, operations), `478edf0` (C10), `bfa53d8` (khớp nhãn C7 với C6), `a395a94` (C11).
 Mã lần chạy: `R-base-prepared-20261119-200438-604cca` (prepared bộ nền), `R-S7-prepared-20261119-201750-604cca` (prepared S7), `R-S7-grade-20261119-201749-604cca` (tự kiểm tra S7), `R-S7-after-20261119-203925-5aede3` và `R-base-after-20261119-203926-5aede3` (sau khi sửa cổng pháp lý).
 
 Commit `0a73cc0`, `73befa2`, `c1f2d33` cũng mang email `2A202603839@example.com` nhưng là phần việc của Hồ Anh Tú (cấu hình Git lúc đầu dùng chung máy).
 
-Có dùng trợ lý AI (Claude Code) để đọc code của lab, viết nháp câu 1.2, 1.4, HAZOP, checklist, runbook, cổng trong `guards.py`, các mục Phiếu C và soát các nhánh trước khi merge; mọi con số và quyết định đã được đối chiếu với `data/world.json`, `lab10/` và report, và do tôi chốt.
+Có dùng trợ lý AI (Claude Code) để đọc code của lab, viết nháp câu 1.2, 1.4, HAZOP, checklist, runbook, risk register, các mục Phiếu C và soát các nhánh trước khi merge; mọi con số và quyết định đã được đối chiếu với `data/world.json`, `lab10/` và report, và do tôi chốt.
 
 ### Exit ticket
 
